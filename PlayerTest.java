@@ -1,7 +1,8 @@
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class PlayerTest {
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
 
         //pool tests
@@ -100,11 +101,17 @@ public class PlayerTest {
         myFrame.fillFrame(myPoolTest);  //testing frame can be filled from pool
         System.out.println(myFrame.toString());
 
-        //player tests
-        Pool myPoolTest = new Pool();
+
+
+
+
+
+
+
+        //Pool myPoolTest = new Pool();
         Player myPlayerTest = new Player("Chris");
         System.out.println(myPlayerTest); //Testing that the constructor works, Name should be as entered, score set to zero, and the frame should be empty
-
+//
         Scanner in = new Scanner(System.in);
         System.out.println("Please enter your name: ");
         String n = in.next();
@@ -114,7 +121,7 @@ public class PlayerTest {
 
         myPlayerTest.increaseScore(2);
         System.out.println(myPlayerTest.accessScore()); //Testing that the score is able to be increased
-
+////
         myPlayerTest.displayName(); //Testing that the name of the player is printed correctly
 
         myPlayerTest.increaseScore(1);
@@ -126,8 +133,7 @@ public class PlayerTest {
         myPlayerTest.getMyFrame().fillFrame(myPoolTest); //Testing that the Frame can be filled
 
         System.out.println(myPlayerTest.toString());
-        System.out.println(myPlayerTest.accessFrame());
-        ; //Testing that access Frame retrieves the frame of the player
+        System.out.println(myPlayerTest.accessFrame());; //Testing that access Frame retrieves the frame of the player
 
 
         myPlayerTest.resetPlayerData();
@@ -146,12 +152,20 @@ public class PlayerTest {
         myPlayerTest.displayName();  //Testing that the name of the player is printed correctly
 
         myPlayerTest.accessFrame(); //Testing that access Frame retrieves the frame of the player
-//
-////        Testing validateName()
-//        Player myPlayerTest3 = new Player("Chris Bleakley");//Testing that a name can only have one word
-//         Player myPlayerTest4 = new Player("");//Testing that a name cannot be empty
-//
+
+//        Testing validateName()
+        Player myPlayerTest3 = new Player("Chris Bleakley");//Testing that a name can only have one word
+        Player myPlayerTest4 = new Player("");//Testing that a name cannot be empty
+
+//        PlayerTest test = new PlayerTest();
 //        System.out.println(myPlayerTest.accessFrame());
+//        String n = "Karen Kelly";
+//        String m = "Karen";
+//        if(validateName(n) == true){
+//            myPlayerTest3.setName(n);
+//        }
 
     }
+
+
 }

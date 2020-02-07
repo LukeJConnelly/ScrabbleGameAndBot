@@ -5,6 +5,7 @@ public class Player {
     private Frame myFrame;
 
     public Player(String n) {                      //Constructor for player which takes a name as input and sets the input as the name and the score to zero
+        validateName(n);
         this.name = n;
         this.score = 0;
         myFrame = new Frame();
@@ -29,14 +30,14 @@ public class Player {
     }
 
     public void displayName() {                    //method to display the name of the player
-        System.out.println(this.name);
+        System.out.print(this.name);
     }
 
-    public void setName(String n) {                 //setter method for variable "name"
+    public void setName(String n){                 //setter method for variable "name"
         this.name = n;
     }
 
-    public Frame getMyFrame() {
+    public Frame getMyFrame(){
         return myFrame;
     }
 
@@ -45,4 +46,16 @@ public class Player {
         return "Player Name: '" + name + '\'' + ", Score: " + score + ", Frame contains: " + myFrame.toString();
     }
 
+    public boolean validateName(String n) {     //Method to validate the name of the player
+        if (n.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty");
+            // System.out.println("Name cannot be empty");
+//            return false;
+        } else if(n.contains(" ") ){
+            throw new IllegalArgumentException("Name cannot have more than one word");
+            //System.out.println("Name cannot contain more than 1 word");
+//            return false;
+        }
+        return true;
+    }
 }

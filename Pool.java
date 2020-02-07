@@ -36,17 +36,18 @@ public class Pool {
         return this.tilesRemaining() == 0;
     }
 
+//
+//    public char randomTile() {
+//        int rand = (int) Math.round((Math.random() * 25));
+//        while (this.findValue(rand) == 0) // continue choosing a random index until we arrive at an index which is non-empty
+//            rand = (int) Math.round((Math.random() * 25));
+//        this.tileAmounts[rand]--; // decrement the count of the tile we have chosen
+//        return (char) ('A' + (char) rand); // return the tile we've selected
+//    }
 
-    public char randomTile() {
-        int rand = (int) Math.round((Math.random() * 25));
-        while (this.findValue(rand) == 0) // continue choosing a random index until we arrive at an index which is non-empty
-            rand = (int) Math.round((Math.random() * 25));
-        this.tileAmounts[rand]--; // decrement the count of the tile we have chosen
-        return (char) ('A' + (char) rand); // return the tile we've selected
-    }
 
-    /*
-    public int randomTile()
+
+    public char randomTile()
     {
         int rand = ThreadLocalRandom.current().nextInt(0, this.tilesRemaining());		// random number between 0 and number of tiles remaining
         int i=0, sum=0;
@@ -59,9 +60,9 @@ public class Pool {
             }
         }
         this.tileAmounts[i]--;				// decrement the amount of the tile we've selected from the array.
-        return i;							// return the tile we've selected
+        return numToLetter(i);							// return the tile we've selected
     }
-    */
+
 
 
     public void addTile(int i) {
