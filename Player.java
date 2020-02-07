@@ -16,10 +16,8 @@ public class Player {
         myFrame = new Frame();
     }
 
-    public int increaseScore(int scoreTally) {     //method to increase the players score
-        int total;
-        total = scoreTally + this.score;
-        return total;
+    public void increaseScore(int scoreTally) {     //method to increase the players score
+        this.score += scoreTally;
     }
 
     public int accessScore() {                     //method to access the score of a given player
