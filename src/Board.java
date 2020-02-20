@@ -116,4 +116,100 @@ public class Board {
 
 		return brokenWord;
 	}
+
+	//definitely not working
+	public boolean oneFromRack(String word, Frame frame){ //check if this is actually working
+		ArrayList<Character> brokenWord = convertWordToArrayList(word);
+
+		if(brokenWord.size() == 1){
+			necessaryLetters(word, frame);
+		}
+		else if(brokenWord.size() > 1){
+			necessaryLetters(word, frame);
+		}
+		return false;
+	}
+
+
+	//x and y - coordinates on the board, direction either D or R
+	public boolean legalPlacement(int row, int col, String word, char direction, Frame myFrame) { //not first word placed
+		boolean flagEmptySquare = false, flagFullSquare = false; //1 - touch at least one empty square and 2 - touch at least one full square
+		char curr = 0;
+
+		if (row > 0 && row <= 15 + word.length() && col > 0 && col <= 15 + word.length()) { //checking the word is placed within the bounds of the board
+			//for(int i = 0; i < word.length(); i++){//should we be looping here like?
+			ArrayList<Character> arrWord = convertWordToArrayList(word);
+			if (direction == 'D') {
+				directionD(row, col, arrWord, curr, flagEmptySquare, flagFullSquare);
+			} else if (direction == 'R') {
+				//					row++;//why do we increment here and in the check?
+				//					if(containsTile(row+1, col)) { //square to right is empty
+				//						necessaryLetters(word, myFrame);
+				//						//place tile;
+				//						addTile(curr, row, col);
+				//						flagEmptySquare = true;
+				//					}else{
+				//						flagFullSquare = true;
+				//					}ArrayList<Character> arrWord = convertWordToArrayList(word);
+				for (int k = 0; k < arrWord.size(); k++, row++) {
+					curr = arrWord.get(k);
+					if (!containsTile(row + 1, col)) { // square beneath is empty
+						if(necessaryLetters(word, myFrame)) {
+							//place tile
+							addTile(curr, row, col); //need to loop through the word at some point - possibly convert to arraylist
+							flagEmptySquare = true;
+						}
+					} else {
+						flagFullSquare = true;
+					}
+				}
+			}
+
+			//}
+		} else return false; //outside the bounds of the board
+
+		if (flagEmptySquare && flagFullSquare) {
+			return true;
+		} else return false;
+	}//possible switch statement for direction and first move
+
+//this works for placing the letters downward - haven't fully tested yet
+	public boolean directionD(int row, int col, ArrayList<Character> arrWord, char curr, boolean flag1, boolean flag2 ){
+		for (int k = 0; k < arrWord.size(); k++, col++) {
+			curr = arrWord.get(k);
+			if (!containsTile(row, col + 1)) { // square beneath is empty
+				//if (necessaryLetters(word, myFrame)) {     this is removing the letters and we still need them so like shit
+				//placing tile
+				addTile(curr, row, col); //need to loop through the word at some point - possibly convert to arraylist
+				flag1 = true;
+			} else {
+				flag2 = true;
+			}
+		}
+		return false;
+	}
+
+
+
+
+
+
+
+//Not sure if this part is relevant anymore
+
+	public boolean wordPlacement(String word){
+//
+//		necessaryLetters();
+//		boundsOfBoard();
+//		existingLetters();
+//		oneFromRack(word, frame);
+//		if (word = first word){
+//			placeCentre();
+//		}else {
+//			connectsWithExisting();
+//		}
+
+		return false;
+	}
+
 }
