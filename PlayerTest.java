@@ -58,9 +58,14 @@ public class PlayerTest {
         //Frame tests
         Frame myFrame = new Frame();
         //myFrame.fillFrame(myPoolTest);
-        myFrame.getLetters().
+        myFrame.getLetters().add('A');
 
-                add('A');
+
+
+        myFrame.getLetters().add('S');
+        myFrame.getLetters().add('T');
+        myFrame.getLetters().add('U');
+
 
         System.out.println(myFrame.toString());
 
@@ -68,15 +73,17 @@ public class PlayerTest {
         System.out.println(myFrame.toString());
 
 
+
         ArrayList<Character> chars = new ArrayList<>();
         chars.add('S');
         chars.add('T');
         chars.add('U');
 
-        myFrame.getLetters().
+        ArrayList<Character> chars2 = new ArrayList<>();
+        chars2.add('S');
+        chars2.add('S');
+        chars2.add('S');
 
-                addAll(chars);
-        System.out.println(myFrame.toString());
 
         System.out.println("does frame contain S? " + myFrame.checkLetter('S'));
         //test to check if a letter is present- should be true
@@ -85,8 +92,13 @@ public class PlayerTest {
         //test to check if multiple letters are present- should be true
 
 
+        System.out.println("does frame contain S,S,S?" + myFrame.checkLetters(chars2));
+        //test to check if many of the same letter are present- should be false
+
+
         System.out.println("does frame contain V? " + myFrame.checkLetter('V'));
         //test to check if a letter is present- should be false
+
 
         System.out.println("frame is empty? " + myFrame.checkFrameEmpty());
         //test checking if frame is empty-should be false
