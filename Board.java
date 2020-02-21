@@ -26,7 +26,7 @@ public class Board {
 		{
 			for (j=0;j<15;j++)
 			{
-				boardTiles[j][i]='\0';
+				boardTiles[i][j]='\0';
 			}
 		}
 	}
@@ -46,13 +46,13 @@ public class Board {
 	            {
 
 	                s+="| ";
-	                if (boardTiles[j][i]!='\0')
+	                if (boardTiles[i][j]!='\0')
 	                {
-	                    s+=boardTiles[j][i] + " ";
+	                    s+=boardTiles[i][j] + " ";
 	                }
 	                else
 	                {
-	                    switch(this.boardValues[j][i])
+	                    switch(this.boardValues[i][j])
 	                    {
 	                        case 0:
 	                        {
@@ -91,19 +91,19 @@ public class Board {
 	    }
 	public void addTile(char c, int x, int y)
 	{
-		boardTiles[x][y]=c;
+		boardTiles[y][x]=c;
 	}
 	public void removeTile(int x, int y)
 	{
-		boardTiles[x][y]='\0';
+		boardTiles[y][x]='\0';
 	}
 	public boolean containsTile(int x, int y)
 	{
-		return !(boardTiles[x][y]=='\0');
+		return !(boardTiles[y][x]=='\0');
 	}
 	public char getBoardTile(int x, int y)
 	{
-		return this.boardTiles[x][y];
+		return this.boardTiles[y][x];
 	}
 	public boolean legalPlacement(int row, int col, String word, boolean direction, Frame myFrame) { //not first word placed	// bool direction 1=right, 0=down
 		boolean flagEmptySquare = false, flagFullSquare = false; //1 - touch at least one empty square and 2 - touch at least one full square
@@ -154,5 +154,18 @@ public class Board {
 			brokenWord.add(c);
 		}
 		return brokenWord;
+	}
+	public void placeWord(int wantedRow, int wantedCol, String wantedWord, boolean direction, Frame myFrame)
+	{
+		int k;
+		int right = direction ? 1 : 0;
+		int down = !direction ? 1 : 0;
+		ArrayList<Character> arrWord = convertWordToArrayList(wantedWord);
+		for (k = 0; k < arrWord.size(); k++) {
+			if (!containsTile(wantedRow + k * right, wantedCol + k * down)) {
+				myFrame.removeLetter(arrWord.get(k));
+				addTile(arrWord.get(k), wantedRow + k * right, wantedCol + k * down);
+			}
+		}
 	}
 }
