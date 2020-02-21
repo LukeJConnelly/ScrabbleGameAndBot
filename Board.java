@@ -1,7 +1,8 @@
 import java.util.ArrayList;
 
 public class Board {
-    private int[][] boardValues = {
+    private int[][] boardValues = {     //assignment of board values for placement of special tiles later, such as
+                                        //double and triple letter or word scores
             {4, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 1, 0, 0, 4},
             {0, 3, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 3, 0},
             {0, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 0, 3, 0, 0},
@@ -20,7 +21,7 @@ public class Board {
     };
     private char[][] boardTiles = new char[15][15];
 
-    public void boardReset() {
+    public void boardReset() {      //method to reset the board, will insert null character in all squares
         int i, j;
         for (i = 0; i < 15; i++) {
             for (j = 0; j < 15; j++) {
@@ -39,7 +40,7 @@ public class Board {
 
         int i, j;
         for (i = 0; i < 15; i++) {
-            for (j = 0; j < 15; j++) {
+            for (j = 0; j < 15; j++) {  //nested loop used to print each square, as well as a character in it
 
                 s += "| ";
                 if (boardTiles[i][j] != '\0') {
@@ -70,30 +71,38 @@ public class Board {
                 }
             }
 
-            s += "| | " + (i + 1);  //prints the row number
+            s += "| | " + (i + 1);  //prints the row number at the end of the row
 
             s += "\n| ----------------------------------------------------------- |\n";
         }
         return s;
     }
 
-    public void addTile(char c, int x, int y) {
+    public void addTile(char c, int x, int y)   //method to add single tile to board
+    {
         boardTiles[y][x] = c;
     }
 
-    public void removeTile(int x, int y) {
+    public void removeTile(int x, int y)    //method to remove single tile to board
+    {
         boardTiles[y][x] = '\0';
     }
 
-    public boolean containsTile(int x, int y) {
+    public boolean containsTile(int x, int y)   //method checks if a square on the board is empty or not, returns a bool
+    {
         return !(boardTiles[y][x] == '\0');
     }
 
-    public char getBoardTile(int x, int y) {
+    public char getBoardTile(int x, int y)  //method returns value of given board tile
+    {
+
         return this.boardTiles[y][x];
     }
 
     public boolean legalPlacement(int row, int col, String word, boolean direction, Frame myFrame) {
+        //method that checks if a move is legal
+        //checks letters being placed are somehow adjacent to others already on the board, and don't go off the board
+
         //not first word placed	// bool direction 1=right, 0=down
         boolean flagEmptySquare = false, flagFullSquare = false;
         //1 - touch at least one empty square and 2 - touch at least one full square
@@ -131,7 +140,7 @@ public class Board {
         }
     }
 
-    public ArrayList<Character> convertWordToArrayList(String word) {
+    public ArrayList<Character> convertWordToArrayList(String word) {   //method that turns string into ArrayList
         ArrayList<Character> brokenWord = new ArrayList<Character>();
         for (char c : word.toCharArray()) {
             brokenWord.add(c);
@@ -140,6 +149,7 @@ public class Board {
     }
 
     public void placeWord(int wantedRow, int wantedCol, String wantedWord, boolean direction, Frame myFrame) {
+        //method to place a whole word (multiple letters) on the board
         int k;
         int right = direction ? 1 : 0;
         int down = !direction ? 1 : 0;
@@ -170,9 +180,11 @@ public class Board {
             }
         }
         return flagCentre;
+
+        }
     }
 
-}
+
 
 
 
