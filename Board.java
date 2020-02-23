@@ -104,38 +104,74 @@ public class Board {
         //checks letters being placed are somehow adjacent to others already on the board, and don't go off the board
 
         //not first word placed	// bool direction 1=right, 0=down
-        boolean flagEmptySquare = false, flagFullSquare = false;
-        //1 - touch at least one empty square and 2 - touch at least one full square
+        boolean flagEmptySquare = false, flagFullSquare = false, flagTouchTile = false;
+        //1 - touch at least one empty square and 2 - touch at least one full square and 3 - at least one peripheral square has a letter
         int k;
         int right = direction ? 1 : 0;
         int down = !direction ? 1 : 0;
         ArrayList<Character> arrWord = convertWordToArrayList(word);
         ArrayList<Character> charsToBeReturned = new ArrayList<Character>();
         if (row < 0 || row + (right * word.length()) > 14 || col < 0 || col + (down * word.length()) > 14) {
+            System.out.println("Your placement is not within the bounds of the board.");
             return false;
-        }
-        for (k = 0; k < arrWord.size(); k++) {
-            if (!containsTile(row + k * right, col + k * down)) {
-                if (myFrame.checkLetter(arrWord.get(k))) {
-                    myFrame.removeLetter(arrWord.get(k));
-                    charsToBeReturned.add(arrWord.get(k));
-                    flagEmptySquare = true;
+        } else {
+            for (k = 0; k < arrWord.size(); k++) {
+                if (!containsTile(row + k * right, col + k * down)) {
+                    if (myFrame.checkLetter(arrWord.get(k))) {
+                        myFrame.removeLetter(arrWord.get(k));
+                        charsToBeReturned.add(arrWord.get(k));
+                        flagEmptySquare = true;
+
+                        if(row+k*right < 14){//dont check to right
+                            if (containsTile(row - 1, col) || containsTile(row + 1, col) || containsTile(row, col - 1)) {
+                                flagTouchTile = true;
+                            }
+                        }
+                            if(row+k*right > 1){//dont check to left
+                            if (containsTile(row - 1, col) || containsTile(row + 1, col) || containsTile(row, col + 1)) {
+                                flagTouchTile = true;
+                            }
+                        }
+                            if(col+k*down < 14){//dont check below
+                            if (containsTile(row - 1, col) || containsTile(row, col - 1) || containsTile(row, col + 1)) {
+                                flagTouchTile = true;
+                            }
+                        }
+                            if(col+k*down > 1){//dont check above
+                            if (containsTile(row + 1, col) || containsTile(row, col - 1) || containsTile(row, col + 1)) {
+                                flagTouchTile = true;
+                            }
+                        } else {//check all sides
+                            if (containsTile(row - 1, col) || containsTile(row + 1, col) || containsTile(row, col - 1) || containsTile(row, col + 1)) {
+                                flagTouchTile = true;
+                            }
+                        }
+                    } else {
+                        myFrame.letters.addAll(charsToBeReturned);
+                        System.out.println("You do not have the required Tiles to make this move.");
+                        return false;
+                    }
                 } else {
-                    myFrame.letters.addAll(charsToBeReturned);
-                    return false;
-                }
-            } else {
-                flagFullSquare = true;
-                if (getBoardTile(row + k * right, col + k * down) != arrWord.get(k)) {
-                    myFrame.letters.addAll(charsToBeReturned);
-                    return false;
+                    flagFullSquare = true;
+                    if (getBoardTile(row + k * right, col + k * down) != arrWord.get(k)) {
+                        System.out.println("The word you want to place conflicts with another letter on the board");
+                        myFrame.letters.addAll(charsToBeReturned);
+                        return false;
+                    }
                 }
             }
         }
+
         myFrame.letters.addAll(charsToBeReturned);
-        if (!(flagEmptySquare && flagFullSquare)) {
+        if(!(flagEmptySquare&&(flagFullSquare||flagTouchTile)))
+        {
+            System.out.println("You have not passed all of the tests, therefore you cannot place this word.");
+            System.out.println("Either your attempt is not connecting to an existing word or you have not used at least one empty square.");
             return false;
-        } else {
+        }
+        else
+        {
+            System.out.println("Congratulations, your word is able to be placed on the board!");
             return true;
         }
     }
