@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class Board {
     private int[][] boardValues = {     //assignment of board values for placement of special tiles later, such as
-                                        //double and triple letter or word scores
+            //double and triple letter or word scores
             {4, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 1, 0, 0, 4},
             {0, 3, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 3, 0},
             {0, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 0, 3, 0, 0},
@@ -107,42 +107,61 @@ public class Board {
         boolean flagEmptySquare = false, flagFullSquare = false, flagTouchTile = false;
         //1 - touch at least one empty square and 2 - touch at least one full square and 3 - at least one peripheral square has a letter
         int k;
-        int right = direction ? 1 : 0;
-        int down = !direction ? 1 : 0;
+        int right = direction ? 0 : 1;
+        int down = direction ? 1 : 0;
         ArrayList<Character> arrWord = convertWordToArrayList(word);
         ArrayList<Character> charsToBeReturned = new ArrayList<Character>();
-        if (row < 0 || row + (right * word.length()) > 14 || col < 0 || col + (down * word.length()) > 14) {
+        if (row < 0 || row + (down * word.length()) > 14 || col < 0 || col + (right * word.length()) > 14) {
             System.out.println("Your placement is not within the bounds of the board.");
             return false;
         } else {
             for (k = 0; k < arrWord.size(); k++) {
-                if (!containsTile(row + k * right, col + k * down)) {
+                if (!containsTile(row + k * down, col + k * right)) {
                     if (myFrame.checkLetter(arrWord.get(k))) {
                         myFrame.removeLetter(arrWord.get(k));
                         charsToBeReturned.add(arrWord.get(k));
                         flagEmptySquare = true;
-
-                        if(row+k*right < 14){//dont check to right
-                            if (containsTile(row - 1, col) || containsTile(row + 1, col) || containsTile(row, col - 1)) {
+                        if(row == 0 && col == 0){//dont check to up/left
+                            if (containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down, col + k * right + 1)) {
                                 flagTouchTile = true;
                             }
                         }
-                            if(row+k*right > 1){//dont check to left
-                            if (containsTile(row - 1, col) || containsTile(row + 1, col) || containsTile(row, col + 1)) {
+                        else if(row + k * down == 14 && col == 0){//dont check down/left
+                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right + 1)) {
                                 flagTouchTile = true;
                             }
                         }
-                            if(col+k*down < 14){//dont check below
-                            if (containsTile(row - 1, col) || containsTile(row, col - 1) || containsTile(row, col + 1)) {
+                        else if(row + k * down == 14 && col+k*right == 14){//dont check down/right
+                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right - 1)) {
                                 flagTouchTile = true;
                             }
                         }
-                            if(col+k*down > 1){//dont check above
-                            if (containsTile(row + 1, col) || containsTile(row, col - 1) || containsTile(row, col + 1)) {
+                        else if(row == 0 && col+k*right == 14){//dont check up/right
+                            if (containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down, col + k * right - 1)) {
+                                flagTouchTile = true;
+                            }
+                        }
+                        else if(row + k * down == 14){//dont check down
+                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right + 1) || containsTile(row+ k * down, col + k * right - 1)) {
+                                flagTouchTile = true;
+                            }
+                        }
+                        else if(row == 0){//dont check to up
+                            if (containsTile(row+ k * down, col + k * right - 1) || containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down, col + k * right + 1)) {
+                                flagTouchTile = true;
+                            }
+                        }
+                        else if(col+k*right == 14){//dont check  right
+                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right - 1) || containsTile(row + k * down + 1, col + k * right)) {
+                                flagTouchTile = true;
+                            }
+                        }
+                        else if(col == 0){//dont check left
+                            if (containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right + 1)) {
                                 flagTouchTile = true;
                             }
                         } else {//check all sides
-                            if (containsTile(row - 1, col) || containsTile(row + 1, col) || containsTile(row, col - 1) || containsTile(row, col + 1)) {
+                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down, col + k * right - 1) || containsTile(row + k * down, col + k * right + 1)) {
                                 flagTouchTile = true;
                             }
                         }
@@ -153,7 +172,7 @@ public class Board {
                     }
                 } else {
                     flagFullSquare = true;
-                    if (getBoardTile(row + k * right, col + k * down) != arrWord.get(k)) {
+                    if (getBoardTile(row + k * down, col + k * right) != arrWord.get(k)) {
                         System.out.println("The word you want to place conflicts with another letter on the board");
                         myFrame.letters.addAll(charsToBeReturned);
                         return false;
@@ -187,13 +206,13 @@ public class Board {
     public void placeWord(int wantedRow, int wantedCol, String wantedWord, boolean direction, Frame myFrame) {
         //method to place a whole word (multiple letters) on the board
         int k;
-        int right = direction ? 1 : 0;
-        int down = !direction ? 1 : 0;
+        int right = direction ? 0 : 1;
+        int down = direction ? 1 : 0;
         ArrayList<Character> arrWord = convertWordToArrayList(wantedWord);
         for (k = 0; k < arrWord.size(); k++) {
-            if (!containsTile(wantedRow + k * right, wantedCol + k * down)) {
+            if (!containsTile(wantedRow + k * down, wantedCol + k * right)) {
                 myFrame.removeLetter(arrWord.get(k));
-                addTile(arrWord.get(k), wantedRow + k * right, wantedCol + k * down);
+                addTile(arrWord.get(k), wantedRow + k * down, wantedCol + k * right);
             }
         }
     }
@@ -204,26 +223,18 @@ public class Board {
 
         int k;
         boolean flagCentre = false;
-        int right = direction ? 1 : 0;
-        int down = !direction ? 1 : 0;
+        int right = direction ? 0 : 1;
+        int down = direction ? 1 : 0;
         ArrayList<Character> arrWord = convertWordToArrayList(word);
         for (k = 0; k < arrWord.size(); k++) {
             if (!myFrame.checkLetter(arrWord.get(k))) {
                 return false;
             }
-            if ((x + k * right == 7) && (y + k * down == 7)) {
+            if ((x + k * down == 7) && (y + k * right == 7)) {
                 flagCentre = true;
             }
         }
         return flagCentre;
 
-        }
     }
-
-
-
-
-
-
-
-
+}
