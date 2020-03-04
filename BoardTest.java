@@ -1,181 +1,132 @@
-import java.util.ArrayList;
+ public class BoardTest {
 
-public class BoardTest {
-    public static void main(String args[]) {
-        Board myBoardTest = new Board();
-        System.out.println(myBoardTest.toString());
-        myBoardTest.addTile('T', 1, 2);
-        myBoardTest.addTile('E', 2, 2);
-        myBoardTest.addTile('S', 3, 2);
-        myBoardTest.addTile('T', 4, 2);
-        System.out.println(myBoardTest.toString());
-        System.out.println(myBoardTest.containsTile(4, 2));
-        System.out.println(myBoardTest.containsTile(4, 3));
-        myBoardTest.addTile('W', 4, 3);
-        myBoardTest.addTile('O', 4, 4);
-        System.out.println(myBoardTest.toString());
-        myBoardTest.removeTile(1, 2);
-        myBoardTest.removeTile(2, 2);
-        myBoardTest.removeTile(3, 2);
-        System.out.println(myBoardTest.toString());
-        myBoardTest.boardReset();
-        System.out.println(myBoardTest.toString());
+	private static Board board = new Board();
+	private static Frame frame = new Frame();
 
+	public static void main(String[] args) {
 
-        // MOCK GAME
-        Frame myFrame = new Frame();
-        ArrayList<Character> chars = new ArrayList<>();
-        chars.add('O');
-        chars.add('O');
-        chars.add('L');
-        myFrame.getLetters().addAll(chars);
-        System.out.println(myBoardTest.toString());
-        myBoardTest.addTile('T', 7, 7);
-        myBoardTest.addTile('E', 8, 7);
-        myBoardTest.addTile('S', 9, 7);
-        myBoardTest.addTile('T', 10, 7);
-        System.out.println(myBoardTest.toString());
-        System.out.println(myBoardTest.getBoardTile(7, 7) + " " + myBoardTest.getBoardTile(7, 8));
-        System.out.println(myFrame.toString());
-        int wantedRow = 7, wantedCol = 7;
-        String wantedWord = "TOO";
-        boolean direction = false;
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        myBoardTest.placeWord(wantedCol, wantedRow, wantedWord, direction, myFrame);
-        System.out.println(myBoardTest.toString());
-        System.out.println(myFrame.toString());
-        chars = new ArrayList<>();
-        chars.add('O');
-        chars.add('O');
-        chars.add('T');
-        chars.add('M');
-        myFrame.getLetters().addAll(chars);
-        wantedRow = 0;
-        wantedCol = 0;
-        direction = true;
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        wantedRow = 15;
-        wantedCol = 15;
-        direction = true;
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        wantedRow = -1;
-        wantedCol = -1;
-        direction = true;
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        wantedRow = 7;
-        // places into wanted row, but only when row is passed as col and vice versa
-        wantedCol = 10;
-        direction = false;
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        myBoardTest.placeWord(wantedCol, wantedRow, wantedWord, direction, myFrame);
-        wantedRow = 6;
-        wantedCol = 8;
-        direction = false;
-        wantedWord = "ME";
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        myBoardTest.placeWord(wantedCol, wantedRow, wantedWord, direction, myFrame);
-        System.out.println(myBoardTest.toString());
+		// display blank
+		System.out.println("BLANK BOARD");
+		board.display();
+		
+		// Test checkWord first play
+		frame.setTiles("HELLOXY");
+		Word newWord = new Word(1,1,true,"HELLO");
+		doTest(1, newWord, false, Board.WORD_INCORRECT_FIRST_PLAY);
 
+		newWord = new Word(Board.BOARD_SIZE,Board.BOARD_SIZE-6,true,"HELLO");
+		doTest(2, newWord, false, Board.WORD_INCORRECT_FIRST_PLAY);
 
-        myBoardTest = new Board();
-        System.out.println(myBoardTest.toString());
+		newWord = new Word(Board.BOARD_SIZE,Board.BOARD_SIZE+1,true,"HELLO");
+		doTest(3, newWord, false, Board.WORD_INCORRECT_FIRST_PLAY);
 
+		newWord = new Word(Board.BOARD_SIZE-6,Board.BOARD_SIZE,true,"HELLO");
+		doTest(4, newWord, false, Board.WORD_INCORRECT_FIRST_PLAY);
 
-        myBoardTest.addTile('T', 1, 2); //simple tests to add single tiles
-        myBoardTest.addTile('E', 2, 2);
-        myBoardTest.addTile('S', 3, 2);
-        myBoardTest.addTile('T', 4, 2);
-        System.out.println(myBoardTest.toString());
-        System.out.println(myBoardTest.containsTile(4, 2)); //tests of containsTile method
-        System.out.println(myBoardTest.containsTile(4, 3));
-        myBoardTest.addTile('W', 4, 3);
-        myBoardTest.addTile('O', 4, 4);
-        System.out.println(myBoardTest.toString());
-        myBoardTest.removeTile(1, 2);   //test of removeTile method
-        myBoardTest.removeTile(2, 2);
-        myBoardTest.removeTile(3, 2);
-        System.out.println(myBoardTest.toString());
-        myBoardTest.boardReset();   //test of boardReset method
-        System.out.println(myBoardTest.toString());
+		newWord = new Word(Board.BOARD_SIZE,Board.BOARD_SIZE+1,true,"HELLO");
+		doTest(5, newWord, false, Board.WORD_INCORRECT_FIRST_PLAY);
 
+		newWord = new Word(Board.BOARD_SIZE,Board.BOARD_SIZE+1,true,"HELLO");
+		doTest(6, newWord, false, Board.WORD_INCORRECT_FIRST_PLAY);
 
-// MOCK GAME
-        myFrame = new Frame();
-        chars = new ArrayList<>();
-        chars.add('T'); //adding letters to arraylist, then to frame
-        chars.add('E');
-        chars.add('S');
-        chars.add('T');
-        chars.add('O');
-        chars.add('O');
-        chars.add('L');
-        myFrame.getLetters().addAll(chars);
-        System.out.println(myBoardTest.toString());
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE,true,"HELLO");
+		doTest(7, newWord, true, 0);
 
-        wantedRow = 9;
-        wantedCol = 9;
-        wantedWord = "TEST";
-        direction = true;
-        System.out.println(myBoardTest.firstTurn(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        //test for firstTurn trying to place first tiles off centre - should return false
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE,true,"HELLO");
+		doTest(8, newWord, true, 0);
 
-        wantedRow = 7;
-        wantedCol = 7;
-        wantedWord = "HELLO";   //second test for first turn with invalid word input- should return false
-        System.out.println(myBoardTest.firstTurn(wantedCol, wantedRow, wantedWord, direction, myFrame));
+		board.place(frame, newWord);
+		frame.setTiles("HELLO");
 
-        wantedWord = "TEST";    //final test for firstTurn- should return true
-        System.out.println(myBoardTest.firstTurn(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        myBoardTest.placeWord(wantedCol, wantedRow, wantedWord, direction, myFrame);
-        System.out.println(myBoardTest.toString());
+		newWord = new Word(-1,Board.BOARD_SIZE,true,"HELLO");
+		doTest(9, newWord, false, Board.WORD_OUT_OF_BOUNDS);
 
-        System.out.println(myBoardTest.getBoardTile(7, 7) + " " + myBoardTest.getBoardTile(7, 8));
-        System.out.println(myFrame.toString()); //printing of frame
+		newWord = new Word(Board.BOARD_SIZE,12,true,"HELLO");
+		doTest(10, newWord, false,Board.WORD_OUT_OF_BOUNDS);
 
-        wantedWord = "TOO";
-        System.out.println(myBoardTest.toString());
-        System.out.println(myFrame.toString());
-        chars = new ArrayList<>();
-        chars.add('O');
-        chars.add('O');
-        chars.add('T');
-        chars.add('M');
-        myFrame.getLetters().addAll(chars);
-        wantedRow = 0;
-        wantedCol = 0;
-        direction = true;
-        //tests for legalPlacement method- should be false
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        wantedRow = 7;
-        wantedCol = 10;
-        direction = false;
-        //further test of legalPlacement- should be true
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        myBoardTest.placeWord(wantedCol, wantedRow, wantedWord, direction, myFrame);
+		newWord = new Word(Board.BOARD_SIZE,-1,false,"HELLO");
+		doTest(11, newWord, false, Board.WORD_OUT_OF_BOUNDS);
 
-        wantedRow = 6;
-        wantedCol = 8;
-        direction = false;
-        wantedWord = "ME";
-        // final connecting test of legalPlacement
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        myBoardTest.placeWord(wantedCol, wantedRow, wantedWord, direction, myFrame);
-        //placement of another word
-        System.out.println(myBoardTest.toString());
-        System.out.println(myBoardTest.getBoardTile(7,7));
-        // test for new peripheral placement
-        chars = new ArrayList<>();
-        chars.add('R');
-        chars.add('O');
-        chars.add('F');
-        myFrame.getLetters().addAll(chars);
-        wantedRow = 9;
-        wantedCol = 11;
-        direction = false;
-        wantedWord = "FOR";
-        //final peripheral test of legalPlacement - should be true
-        System.out.println(myBoardTest.legalPlacement(wantedCol, wantedRow, wantedWord, direction, myFrame));
-        myBoardTest.placeWord(wantedCol, wantedRow, wantedWord, direction, myFrame);
-        System.out.println(myBoardTest.toString());
-    }
+		newWord = new Word(12,Board.BOARD_SIZE,false,"HELLO");
+		doTest(12, newWord, false, Board.WORD_OUT_OF_BOUNDS);
+
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE,false,"HELLO");
+		doTest(13, newWord, true, 0);
+		
+		// Test not in frame
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE,false,"HALLO");
+		doTest(14, newWord, false, Board.WORD_LETTER_NOT_IN_FRAME);
+		
+		// Test clash
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE,false,"XELLO");
+		doTest(15, newWord, false, Board.WORD_LETTER_CLASH);
+		
+		// Test frame not used
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE,true,"HE");
+		doTest(16, newWord, false, Board.WORD_NO_LETTER_PLACED);
+		
+		// Test no connection to existing words
+		System.out.println("CONNECTION TESTS FOLLOW");
+		board.display();
+
+		newWord = new Word(Board.BOARD_CENTRE-2,Board.BOARD_CENTRE,true,"HELLO");
+		doTest(17, newWord, false, Board.WORD_NO_CONNECTION);
+
+		newWord = new Word(Board.BOARD_CENTRE+2,Board.BOARD_CENTRE,true,"HELLO");
+		doTest(18, newWord, false, Board.WORD_NO_CONNECTION);
+
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE-6,true,"HELLO");
+		doTest(19, newWord, false, Board.WORD_NO_CONNECTION);
+
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE-5,true,"HELLO");
+		doTest(20, newWord, true, 0);
+
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE+6,true,"H");
+		doTest(21, newWord, false, Board.WORD_NO_CONNECTION);
+
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE+5,true,"H");
+		doTest(22, newWord, true, 0);
+
+		newWord = new Word(Board.BOARD_CENTRE-6,Board.BOARD_CENTRE,false,"HELLO");
+		doTest(23, newWord, false, Board.WORD_NO_CONNECTION);
+
+		newWord = new Word(Board.BOARD_CENTRE-5,Board.BOARD_CENTRE,false,"HELLO");
+		doTest(24, newWord, true, 0);
+
+		newWord = new Word(Board.BOARD_CENTRE+1,Board.BOARD_CENTRE,false,"HELLO");
+		doTest(25, newWord, true, 0);
+
+		newWord = new Word(Board.BOARD_CENTRE+2,Board.BOARD_CENTRE,false,"HELLO");
+		doTest(26, newWord, false, Board.WORD_NO_CONNECTION);
+		
+		
+		// Test setWord & display
+		System.out.println("HELLO");
+		board.display();
+		newWord = new Word(Board.BOARD_CENTRE,Board.BOARD_CENTRE,false,"HELLO");
+		board.place(frame,newWord);
+		System.out.println("HELLOx2");
+		board.display();
+
+		System.out.println("Test Complete");
+	}
+
+	 public static void doTest(int number, Word word, boolean expectedIsLegal, int expectedCode) {
+		 boolean isLegal = board.isLegal(frame, word);
+		 System.out.printf("%d: isLegal %b : expected isLegal %b", number, isLegal, expectedIsLegal);
+		 if (isLegal != expectedIsLegal) {
+			 System.out.println(" ERROR ");
+		 } else {
+			 System.out.println();
+		 }
+		 if (!isLegal) {
+			 int checkCode = board.getCheckCode();
+			 System.out.printf("%d: checkCode %d : expected checkCode %d", number, checkCode, expectedCode);
+			 if (checkCode != expectedCode) {
+				 System.out.println(" ERROR ");
+			 } else {
+				 System.out.println();
+			 }
+		 }
+	 }
 }

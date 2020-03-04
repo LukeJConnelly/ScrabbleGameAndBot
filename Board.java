@@ -1,240 +1,183 @@
-import java.util.ArrayList;
-
 public class Board {
-    private int[][] boardValues = {     //assignment of board values for placement of special tiles later, such as
-            //double and triple letter or word scores
-            {4, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 1, 0, 0, 4},
-            {0, 3, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 3, 0},
-            {0, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 0, 3, 0, 0},
-            {1, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 1},
-            {0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0},
-            {0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0},
-            {0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0},
-            {4, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 4},
-            {0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0},
-            {0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0},
-            {0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0},
-            {1, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 1},
-            {0, 0, 3, 0, 0, 0, 1, 0, 1, 0, 0, 0, 3, 0, 0},
-            {0, 3, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 3, 0},
-            {4, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 1, 0, 0, 4}
-    };
-    private char[][] boardTiles = new char[15][15];
 
-    public void boardReset() {      //method to reset the board, will insert null character in all squares
-        int i, j;
-        for (i = 0; i < 15; i++) {
-            for (j = 0; j < 15; j++) {
-                boardTiles[i][j] = '\0';
-            }
-        }
-    }
+	public static final int BOARD_SIZE = 15;
+	public static final int BOARD_CENTRE = 7;
 
-    public String toString() {
-        String s = "";
+	private static final int[][] LETTER_MULTIPLIER =
+		{ {1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1},
+		  {1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1},
+		  {1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1},
+		  {2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2},
+		  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		  {1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1},
+		  {1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1},
+		  {1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1},
+		  {1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1},
+		  {1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1},
+		  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	      {2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2},
+		  {1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1},
+		  {1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1},
+		  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} };
+	private static final int[][] WORD_MULTIPLIER =
+		  { {3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3},
+			{1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1},
+			{1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1},
+			{1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1},
+			{1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+			{3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+			{1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1},
+			{1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1},
+			{1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1},
+			{1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1},
+			{3, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 3} };
 
-        //pritning of column letters
-        System.out.println("  A   B   C   D   E   F   G   H   I   J   K   L   M   N   O");
+	public static final int WORD_INCORRECT_FIRST_PLAY = 0;
+	public static final int WORD_OUT_OF_BOUNDS = 1;
+	public static final int WORD_LETTER_NOT_IN_FRAME = 2;
+	public static final int WORD_LETTER_CLASH = 3;
+	public static final int WORD_NO_LETTER_PLACED = 4;
+	public static final int WORD_NO_CONNECTION = 5;
 
-        s += "| ----------------------------------------------------------- |\n";
+	private Square[][] squares;
+	private int checkCode;
+	private int numPlays;
+	
+	Board() {
+		squares = new Square[BOARD_SIZE][BOARD_SIZE];
+		for (int r=0; r<BOARD_SIZE; r++)  {
+			for (int c=0; c<BOARD_SIZE; c++)   {
+				squares[r][c] = new Square(LETTER_MULTIPLIER[r][c],WORD_MULTIPLIER[r][c]);
+			}
+		}
+		numPlays = 0;
+	}	
 
-        int i, j;
-        for (i = 0; i < 15; i++) {
-            for (j = 0; j < 15; j++) {  //nested loop used to print each square, as well as a character in it
+	public void display () {
+		System.out.print("    ");
+		for (int c = 0; c< BOARD_SIZE; c++) {
+			System.out.printf("%c ",(char) ((int) 'A' + c));
+		}
+		System.out.println();
+		for (int r = 0; r< BOARD_SIZE; r++) {
+			System.out.printf("%2d  ", r+1);
+			for (int c = 0; c< BOARD_SIZE; c++) {
+				if (squares[r][c].isOccupied()) {
+					System.out.printf("%c ",squares[r][c].getTile().getLetter());
+				}
+				else {
+					if (squares[r][c].isDoubleLetter()) {
+						System.out.print("dl");
+					} else if (squares[r][c].isTripleLetter()) {
+						System.out.print("tl");
+					} else if (squares[r][c].isDoubleWord()) {
+						System.out.print("dw");
+					} else if (squares[r][c].isTripleWord()) {
+						System.out.print("tw");
+					} else {
+						System.out.print("  ");
+					}
+				}
+			}
+			System.out.printf("  %2d\n", r+1);
+		}
+	}
+	
+	public boolean isLegal(Frame frame, Word word) {
+		boolean isLegal = true;
+		//check for invalid first play
+		if (numPlays == 0 &&
+				((word.isHorizontal() && (word.getRow()!=BOARD_CENTRE || word.getFirstColumn()>BOARD_CENTRE ||
+						word.getLastColumn()<BOARD_CENTRE)) ||
+				(word.isVertical() && (word.getColumn()!=BOARD_CENTRE || word.getFirstRow()>BOARD_CENTRE ||
+						word.getLastRow()<BOARD_CENTRE)))) {
+			isLegal = false;
+			checkCode = WORD_INCORRECT_FIRST_PLAY;
+		}
+		// check for word out of bounds
+		if (isLegal && ((word.isHorizontal() && word.getLastColumn()>= BOARD_SIZE) ||
+				        (word.isVertical() && word.getLastRow()>= BOARD_SIZE))) {
+			isLegal = false;
+			checkCode = WORD_OUT_OF_BOUNDS;
+		}
+		// check that letters in the word do not clash with those on the board
+		String lettersPlaced = "";
+		if (isLegal) {
+			int r = word.getFirstRow();
+			int c = word.getFirstColumn();
+			for (int i = 0; i < word.getLength() && isLegal; i++) {
+				if (squares[r][c].isOccupied() && squares[r][c].getTile().getLetter() != word.getLetter(i)) {
+					isLegal = false;
+					checkCode = WORD_LETTER_CLASH;
+				} else if (!squares[r][c].isOccupied()) {
+					lettersPlaced = lettersPlaced + word.getLetter(i);
+				}
+				if (word.isHorizontal()) {
+					c++;
+				} else {
+					r++;
+				}
+			}
+		}
+		// check that more than one letter is placed
+		if (isLegal && lettersPlaced.length() == 0) {
+			isLegal = false;
+			checkCode = WORD_NO_LETTER_PLACED;
+		}
+		// check that the letters placed are in the frame
+		if (isLegal && !frame.isAvailable(lettersPlaced)) {
+			isLegal = false;
+			checkCode = WORD_LETTER_NOT_IN_FRAME;
+		}
+		// check that the letters placed connect with the letters on the board
+		if (isLegal && numPlays!=0) {
+			int boxTop = Math.max(word.getFirstRow()-1,0);
+			int boxBottom = Math.min(word.getLastRow()+1, BOARD_SIZE-1);
+			int boxLeft = Math.max(word.getFirstColumn()-1,0);
+			int boxRight = Math.min(word.getLastColumn()+1, BOARD_SIZE-1);
+			boolean foundConnection = false;
+			for (int r=boxTop; r<=boxBottom && !foundConnection; r++) {
+				for (int c=boxLeft; c<=boxRight && !foundConnection; c++) {
+					if (squares[r][c].isOccupied()) {
+						foundConnection = true;
+					}
+				}
+			}
+			if (!foundConnection) {
+				isLegal = false;
+				checkCode = WORD_NO_CONNECTION;
+			}
+		}
+		return isLegal;
+	}
 
-                s += "| ";
-                if (boardTiles[i][j] != '\0') {
-                    s += boardTiles[i][j] + " ";
-                } else {
-                    switch (this.boardValues[i][j]) {
-                        case 0: {
-                            s += "_ ";
-                            break;
-                        }
-                        case 1: {
-                            s += "d ";
-                            break;
-                        }
-                        case 2: {
-                            s += "t ";
-                            break;
-                        }
-                        case 3: {
-                            s += "2 ";
-                            break;
-                        }
-                        case 4: {
-                            s += "3 ";
-                            break;
-                        }
-                    }
-                }
-            }
+	// getCheckCode precondition: isLegal is false
+	public int getCheckCode() {
+		return checkCode;
+	};
 
-            s += "| | " + (i + 1);  //prints the row number at the end of the row
+	// place precondition: isLegal is true
+	public void place(Frame frame, Word word) {
+		int r = word.getFirstRow();
+		int c = word.getFirstColumn();
+		for (int i=0; i<word.getLength(); i++) {
+			if (!squares[r][c].isOccupied()) {
+				char letter = word.getLetter(i);
+				Tile tile = frame.getTile(letter);
+				squares[r][c].add(tile);
+				frame.remove(tile);
+			}
+			if (word.isHorizontal()) {
+				c++;
+			} else {
+				r++;
+			}
+		}
+		numPlays++;
+	}
 
-            s += "\n| ----------------------------------------------------------- |\n";
-        }
-        return s;
-    }
-
-    public void addTile(char c, int x, int y)   //method to add single tile to board
-    {
-        boardTiles[y][x] = c;
-    }
-
-    public void removeTile(int x, int y)    //method to remove single tile to board
-    {
-        boardTiles[y][x] = '\0';
-    }
-
-    public boolean containsTile(int x, int y)   //method checks if a square on the board is empty or not, returns a bool
-    {
-        return !(boardTiles[y][x] == '\0');
-    }
-
-    public char getBoardTile(int x, int y)  //method returns value of given board tile
-    {
-
-        return this.boardTiles[y][x];
-    }
-
-    public boolean legalPlacement(int row, int col, String word, boolean direction, Frame myFrame) {
-        //method that checks if a move is legal
-        //checks letters being placed are somehow adjacent to others already on the board, and don't go off the board
-
-        //not first word placed	// bool direction 1=right, 0=down
-        boolean flagEmptySquare = false, flagFullSquare = false, flagTouchTile = false;
-        //1 - touch at least one empty square and 2 - touch at least one full square and 3 - at least one peripheral square has a letter
-        int k;
-        int right = direction ? 0 : 1;
-        int down = direction ? 1 : 0;
-        ArrayList<Character> arrWord = convertWordToArrayList(word);
-        ArrayList<Character> charsToBeReturned = new ArrayList<Character>();
-        if (row < 0 || row + (down * word.length()) > 14 || col < 0 || col + (right * word.length()) > 14) {
-            System.out.println("Your placement is not within the bounds of the board.");
-            return false;
-        } else {
-            for (k = 0; k < arrWord.size(); k++) {
-                if (!containsTile(row + k * down, col + k * right)) {
-                    if (myFrame.checkLetter(arrWord.get(k))) {
-                        myFrame.removeLetter(arrWord.get(k));
-                        charsToBeReturned.add(arrWord.get(k));
-                        flagEmptySquare = true;
-                        if(row == 0 && col == 0){//dont check to up/left
-                            if (containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down, col + k * right + 1)) {
-                                flagTouchTile = true;
-                            }
-                        }
-                        else if(row + k * down == 14 && col == 0){//dont check down/left
-                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right + 1)) {
-                                flagTouchTile = true;
-                            }
-                        }
-                        else if(row + k * down == 14 && col+k*right == 14){//dont check down/right
-                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right - 1)) {
-                                flagTouchTile = true;
-                            }
-                        }
-                        else if(row == 0 && col+k*right == 14){//dont check up/right
-                            if (containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down, col + k * right - 1)) {
-                                flagTouchTile = true;
-                            }
-                        }
-                        else if(row + k * down == 14){//dont check down
-                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right + 1) || containsTile(row+ k * down, col + k * right - 1)) {
-                                flagTouchTile = true;
-                            }
-                        }
-                        else if(row == 0){//dont check to up
-                            if (containsTile(row+ k * down, col + k * right - 1) || containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down, col + k * right + 1)) {
-                                flagTouchTile = true;
-                            }
-                        }
-                        else if(col+k*right == 14){//dont check  right
-                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right - 1) || containsTile(row + k * down + 1, col + k * right)) {
-                                flagTouchTile = true;
-                            }
-                        }
-                        else if(col == 0){//dont check left
-                            if (containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down, col + k * right + 1)) {
-                                flagTouchTile = true;
-                            }
-                        } else {//check all sides
-                            if (containsTile(row + k * down - 1, col + k * right) || containsTile(row + k * down + 1, col + k * right) || containsTile(row + k * down, col + k * right - 1) || containsTile(row + k * down, col + k * right + 1)) {
-                                flagTouchTile = true;
-                            }
-                        }
-                    } else {
-                        myFrame.letters.addAll(charsToBeReturned);
-                        System.out.println("You do not have the required Tiles to make this move.");
-                        return false;
-                    }
-                } else {
-                    flagFullSquare = true;
-                    if (getBoardTile(row + k * down, col + k * right) != arrWord.get(k)) {
-                        System.out.println("The word you want to place conflicts with another letter on the board");
-                        myFrame.letters.addAll(charsToBeReturned);
-                        return false;
-                    }
-                }
-            }
-        }
-
-        myFrame.letters.addAll(charsToBeReturned);
-        if(!(flagEmptySquare&&(flagFullSquare||flagTouchTile)))
-        {
-            System.out.println("You have not passed all of the tests, therefore you cannot place this word.");
-            System.out.println("Either your attempt is not connecting to an existing word or you have not used at least one empty square.");
-            return false;
-        }
-        else
-        {
-            System.out.println("Congratulations, your word is able to be placed on the board!");
-            return true;
-        }
-    }
-
-    public ArrayList<Character> convertWordToArrayList(String word) {   //method that turns string into ArrayList
-        ArrayList<Character> brokenWord = new ArrayList<Character>();
-        for (char c : word.toCharArray()) {
-            brokenWord.add(c);
-        }
-        return brokenWord;
-    }
-
-    public void placeWord(int wantedRow, int wantedCol, String wantedWord, boolean direction, Frame myFrame) {
-        //method to place a whole word (multiple letters) on the board
-        int k;
-        int right = direction ? 0 : 1;
-        int down = direction ? 1 : 0;
-        ArrayList<Character> arrWord = convertWordToArrayList(wantedWord);
-        for (k = 0; k < arrWord.size(); k++) {
-            if (!containsTile(wantedRow + k * down, wantedCol + k * right)) {
-                myFrame.removeLetter(arrWord.get(k));
-                addTile(arrWord.get(k), wantedRow + k * down, wantedCol + k * right);
-            }
-        }
-    }
-
-
-    public boolean firstTurn( int x, int y, String word, boolean direction, Frame myFrame) {
-        //method to check the first player places a tile on the centre with first move
-
-        int k;
-        boolean flagCentre = false;
-        int right = direction ? 0 : 1;
-        int down = direction ? 1 : 0;
-        ArrayList<Character> arrWord = convertWordToArrayList(word);
-        for (k = 0; k < arrWord.size(); k++) {
-            if (!myFrame.checkLetter(arrWord.get(k))) {
-                return false;
-            }
-            if ((x + k * down == 7) && (y + k * right == 7)) {
-                flagCentre = true;
-            }
-        }
-        return flagCentre;
-
-    }
 }

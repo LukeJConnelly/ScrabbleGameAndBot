@@ -1,183 +1,111 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class PlayerTest {
-    public static void main(String[] args) {
+
+	// For full marks, you should include automated comparison between actual and expected results
+
+	public static void main (String[] args) {
+
+		// Test draw random tiles
+		Pool pool = new Pool();
+		System.out.println(pool.size());
+		System.out.println("Expected: 100\n");
+
+		ArrayList<Tile> draw = pool.drawTiles(1);
+		System.out.printf("%s\n",draw);
+		System.out.println(pool.size());
+		System.out.println("Expected: 99\n");
+
+		draw = pool.drawTiles(7);
+		System.out.printf("%s\n",draw);
+		System.out.println(pool.size());
+		System.out.println("Expected: 92\n");
 
 
-        //pool tests
-        Pool myPoolTest = new Pool();
-        int i = 0;
-        for (i = 0; i < 27; i++) {
-            System.out.print(myPoolTest.findValue(i) + " ");
-        }    // checking we can find each value correctly
-        System.out.println();
-        if (!myPoolTest.isEmpty()) {
-            System.out.println("Pool is not empty");
-        }    // checking isEmpty() returns false when pool has tiles remaining
-        for (i = 0; i < 100; i++) {
-            System.out.println("Your Tile: " + myPoolTest.randomTile());
-            System.out.println("Tiles Remaining: " + myPoolTest.tilesRemaining());
-        }    // removing one tile at a time, printing the selected tile and the number remaining at that point.
-        // this checks actually random tiles are removed and all tiles are removed eventually.
-        if (myPoolTest.isEmpty()) {
-            System.out.println("Pool is now empty!");
-        }    // checking isEmpty() returns true when pool no longer has tiles
-        myPoolTest.poolReset();        // checking poolReset() runs
-        System.out.println("Pool has been reset!");
-        if (!myPoolTest.isEmpty()) {
-            System.out.println("Pool is not empty");
-        }    // checking poolReset() refills the pool with tiles
-        System.out.println("Tiles Remaining: " + myPoolTest.tilesRemaining());    // checking it refills the pool with the correct amount of tiles
-        for (i = 0; i < 50; i++) {
-            myPoolTest.randomTile();
-        }
-        System.out.println("Tiles Remaining: " + myPoolTest.tilesRemaining());    // just checking tiles are removed and still counted correctly after poolReset()
-        for (i = 50; i < 100; i++) {
-            myPoolTest.randomTile();
-        }
-        System.out.println("Tiles Remaining: " + myPoolTest.tilesRemaining());
-        if (myPoolTest.isEmpty()) {
-            System.out.println("Pool is now empty!");
-        }    // checking isEmpty() still works after poolReset()
-        //test for the so far unused numToLetter() function
-        for (i = 0; i < 27; i++) {
-            System.out.print(myPoolTest.numToLetter(i));
-        }
-        System.out.println();
-        char c = 42;
-        System.out.print(myPoolTest.letterToNum(c) + " ");
-        for (c = 65; c < 91; c++) {
-            System.out.print(myPoolTest.letterToNum(c) + " ");
-        }
-        //Frame myFrameTest = new Frame();
-        myPoolTest.poolReset();
-        //myFrameTest.fillFrame(myPoolTest);
-
-
-        //Frame tests
-        Frame myFrame = new Frame();
-        //myFrame.fillFrame(myPoolTest);
-        myFrame.getLetters().add('A');
-
-
-
-        myFrame.getLetters().add('S');
-        myFrame.getLetters().add('T');
-        myFrame.getLetters().add('U');
-
-
-        System.out.println(myFrame.toString());
-
-        myFrame.removeLetter('A');      //this removes specific letter only if it is present in the frame
-        System.out.println(myFrame.toString());
-
-
-
-        ArrayList<Character> chars = new ArrayList<>();
-        chars.add('S');
-        chars.add('T');
-        chars.add('U');
-
-        ArrayList<Character> chars2 = new ArrayList<>();
-        chars2.add('S');
-        chars2.add('S');
-        chars2.add('S');
-
-
-        System.out.println("does frame contain S? " + myFrame.checkLetter('S'));
-        //test to check if a letter is present- should be true
-
-        System.out.println("does frame contain S,T,U?" + myFrame.checkLetters(chars));
-        //test to check if multiple letters are present- should be true
-
-
-        System.out.println("does frame contain S,S,S?" + myFrame.checkLetters(chars2));
-        //test to check if many of the same letter are present- should be false
-
-
-        System.out.println("does frame contain V? " + myFrame.checkLetter('V'));
-        //test to check if a letter is present- should be false
-
-
-        System.out.println("frame is empty? " + myFrame.checkFrameEmpty());
-        //test checking if frame is empty-should be false
-
-        myFrame.removeLetters(chars);   //test to remove multiple letters
-        System.out.println(myFrame.toString());
-
-        System.out.println("frame is empty? " + myFrame.checkFrameEmpty());
-        //second test checking if frame is empty-should be true
-
-
-        myFrame.fillFrame(myPoolTest);  //testing frame can be filled from pool
-        System.out.println(myFrame.toString());
-
-
-
-
-
-
-
-
-        //Pool myPoolTest = new Pool();
-        Player myPlayerTest = new Player("Chris");
-        System.out.println(myPlayerTest); //Testing that the constructor works, Name should be as entered, score set to zero, and the frame should be empty
-//
-        Scanner in = new Scanner(System.in);
-        System.out.println("Please enter your name: ");
-        String n = in.next();
-        Player myPlayerTest2 = new Player(n);
-        System.out.println(myPlayerTest2); //Testing that the name is able to be recorded by user input
-
-
-        myPlayerTest.increaseScore(2);
-        System.out.println(myPlayerTest.accessScore()); //Testing that the score is able to be increased
-////
-        myPlayerTest.displayName(); //Testing that the name of the player is printed correctly
-
-        myPlayerTest.increaseScore(1);
-        System.out.println(myPlayerTest.accessScore()); //Checking that access score is retrieving the correct value for the score
-        myPlayerTest.increaseScore(10);
-        System.out.println(myPlayerTest.accessScore()); //Testing that it can be increase by more than 1
-
-
-        myPlayerTest.getMyFrame().fillFrame(myPoolTest); //Testing that the Frame can be filled
-
-        System.out.println(myPlayerTest.toString());
-        System.out.println(myPlayerTest.accessFrame());; //Testing that access Frame retrieves the frame of the player
-
-
-        myPlayerTest.resetPlayerData();
-        System.out.println(myPlayerTest); //Testing that that data stored in player is set back to the default
-//Redoing the same tests to see that they still work correctly after the player data has been reset
-        myPlayerTest.increaseScore(2);
-        System.out.println(myPlayerTest); //Testing that the score is able to be increased
-
-
-        myPlayerTest.increaseScore(2);
-        System.out.println(myPlayerTest.accessScore()); //Checking that access score is retrieving the correct value for the score
-        myPlayerTest.increaseScore(20);
-        System.out.println(myPlayerTest); //Testing that it can be increase by more than 1
-
-        myPlayerTest.setName("Karen");
-        myPlayerTest.displayName();  //Testing that the name of the player is printed correctly
-
-        myPlayerTest.accessFrame(); //Testing that access Frame retrieves the frame of the player
-
-//        Testing validateName()
-        Player myPlayerTest3 = new Player("Chris Bleakley");//Testing that a name can only have one word
-        Player myPlayerTest4 = new Player("");//Testing that a name cannot be empty
-
-//        PlayerTest test = new PlayerTest();
-//        System.out.println(myPlayerTest.accessFrame());
-//        String n = "Karen Kelly";
-//        String m = "Karen";
-//        if(validateName(n) == true){
-//            myPlayerTest3.setName(n);
-//        }
-
-    }
-
-
+		// Test pool empty
+		pool = new Pool();
+		boolean empty = pool.isEmpty();
+		System.out.printf("Pool empty? %b\n",empty);
+		System.out.printf("Expected: false\n");
+		for (int i=0; i<99; i++) {
+			draw = pool.drawTiles(1);
+			System.out.print(draw);
+		}
+		System.out.println();
+		System.out.println(pool.size());
+		empty = pool.isEmpty();
+		System.out.printf("Pool empty? %b\n",empty);
+		System.out.printf("Expected: false\n");
+		draw = pool.drawTiles(1);
+		System.out.println(draw);
+		System.out.printf("Expected: 1 letter\n");
+		System.out.println(pool.size());
+		System.out.printf("Expected: 0\n");
+		empty = pool.isEmpty();
+		System.out.printf("Pool empty? %b\n",empty);
+		System.out.printf("Expected: true\n");
+		draw = pool.drawTiles(7);
+		System.out.printf("%s\n",draw);
+		System.out.printf("Expected: empty\n");
+				
+		// Test player names
+		Player player1 = new Player(), player2 = new Player();
+		player1.setName("Chris");
+		player2.setName("Jack");
+		System.out.println(player1.getName());
+		System.out.printf("Expected: Chris\n");
+		System.out.println(player2.getName());
+		System.out.printf("Expected: Jack\n");
+		
+		// Test scoring
+		System.out.println(player1.getScore());
+		System.out.printf("Expected: 0\n");
+		player1.addScore(10);
+		System.out.println(player1.getScore());
+		System.out.printf("Expected: 10\n");
+		
+		// Test frames
+		pool = new Pool();
+		Frame frame = player1.getFrame();
+		empty = frame.isEmpty();
+		System.out.printf("Is empty? %b \n",empty);
+		System.out.printf("Expected: true\n");
+		System.out.println(frame);
+		System.out.printf("Expected: empty\n");
+		boolean available = frame.isAvailable("A");
+		System.out.println(available);
+		System.out.printf("Expected: false\n");
+		frame.refill(pool);          
+		System.out.println(frame);
+		System.out.printf("Expected: 7 letters\n");
+		empty = frame.isEmpty();                          
+		System.out.printf("Is empty? %b\n",empty);
+		System.out.printf("Expected: false\n");
+		System.out.println(pool.size());
+		System.out.printf("Expected: 93\n");
+		draw = frame.getTiles();
+		String drawString = "";
+		for (int i=0; i<draw.size(); i++) {
+			drawString = drawString + draw.get(i).toString();
+		}
+		System.out.println(draw);
+		available = frame.isAvailable(drawString.substring(0,6));
+		System.out.println(available);
+		System.out.printf("Expected: true\n");
+		available = frame.isAvailable("X");
+		System.out.println(available);
+		System.out.printf("Expected: false\n");
+		frame.remove(drawString.substring(0,3));
+		System.out.println(frame);
+		System.out.printf("Expected: 4 left\n");
+		frame = player2.getFrame();
+		frame.refill(pool);
+		System.out.println(pool.size());
+		System.out.printf("Expected: 86\n");
+		System.out.println(frame);
+		System.out.printf("Expected: 7 left\n");
+		frame = player1.getFrame();
+		System.out.println(frame);
+		System.out.printf("Expected: 4 left\n");
+	}
 }
