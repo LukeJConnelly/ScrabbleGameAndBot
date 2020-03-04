@@ -16,7 +16,7 @@ public class Main extends Application {
         primaryStage.setTitle("Scrabble");
         GridPane gridpane = new GridPane();
         char letter = 'A';
-        Image image = new Image("File:Scrabble Tiles/"+letter+".png");
+        Image image = new Image("File:/Scrabble Tiles/"+letter+".png");
         gridpane.getChildren().add(new ImageView(image));
         Scene scene = new Scene(gridpane, 240, 100);
         primaryStage.setScene(scene);
