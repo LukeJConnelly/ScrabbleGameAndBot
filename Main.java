@@ -21,19 +21,17 @@ public class Main extends Application {
 //        char letter = 'A';
 //        Image image = new Image("File:/Scrabble Tiles/"+letter+".png");
 //        gridpane.getChildren().add(new ImageView(image));
-//        Scene scene = new Scene(gridpane, 240, 100);
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
         primaryStage.setTitle("Other Scrabbled Eggs Project");
         GridPane gridpane = new GridPane();
         Button title_text = new Button("SCRABBLE");
         title_text.setMinWidth(450);
         title_text.setMinHeight(50);
-        title_text.setStyle("-fx-background-color: #006600; " +
+        title_text.setStyle("-fx-background-color: #003300; " +
                         "-fx-border-width: 0;" +
                         "-fx-font-size: 30;" +
                         "-fx-text-fill: white;" +
-                        "-fx-font-family: \"Arial\";"    );
+                        "-fx-font-family: \"Arial\";" +
+                        "-fx-font-weight: bold");
         HBox title = new HBox(title_text);
         title.setAlignment(Pos.CENTER);
 
@@ -51,14 +49,32 @@ public class Main extends Application {
         {
             for(j=0;j<15;j++)
             {
-                Button blank = new Button("");
-                blank.setMinWidth(30);
-                blank.setMinHeight(30);
-                blank.setStyle("-fx-background-color: #006600; " +
-                        "-fx-border-width: 0;");
-                gridpane.add(blank, i, j);
+                if(i+j==14||i-j==0) {
+                    Button blank = new Button("DW");
+                    blank.setStyle("-fx-background-color: #660466; " +
+                            "-fx-border-width: 0;" +
+                            "-fx-font-size: 14;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-family: \"Arial\";" +
+                            "-fx-font-weight: bold");
+                    blank.setPadding(Insets.EMPTY);
+                    blank.setMinWidth(30);
+                    blank.setMinHeight(30);
+                    gridpane.add(blank, i, j);
+                }
+                else
+                {
+                    Button blank = new Button("");
+                    blank.setStyle("-fx-background-color: #006600; " +
+                            "-fx-border-width: 0;");
+                    blank.setPadding(Insets.EMPTY);
+                    blank.setMinWidth(30);
+                    blank.setMinHeight(30);
+                    gridpane.add(blank, i, j);
+                }
             }
         }
+
         gridpane.add(imageView, 3, 2);
         gridpane.setStyle("-fx-background-color: #000000;");
         gridpane.setAlignment(Pos.CENTER);
