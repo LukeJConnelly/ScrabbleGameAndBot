@@ -1,5 +1,4 @@
 package sample;
-
 public class Player {
 
 	private String name;

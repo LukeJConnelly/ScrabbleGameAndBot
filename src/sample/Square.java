@@ -1,5 +1,4 @@
 package sample;
-
 public class Square {
 
     private int letterMuliplier;

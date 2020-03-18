@@ -1,5 +1,4 @@
 package sample;
-
 public class Tile {
 
     private static final int BLANK_VALUE = 0;

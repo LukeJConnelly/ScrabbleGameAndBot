@@ -1,5 +1,4 @@
 package sample;
-
 public class Word {
 
 	private int row, column; // first letter position
