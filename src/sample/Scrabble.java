@@ -12,7 +12,8 @@ public class Scrabble {
     public static void main(String[] args) {
     }
     public void move(Board myBoard, Player currPlayer){
-
+        Tile myTile = new Tile ('A');
+        myBoard.squares[0][1].add(myTile);
     }
 }
 //    public int numTurns = 0;

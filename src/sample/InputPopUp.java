@@ -83,7 +83,7 @@ public class InputPopUp extends Application {
         BorderPane bp = new BorderPane();
         bp.setCenter(hbox);
         bp.setStyle("-fx-background-color: radial-gradient(center 50% 50%, radius 90%, #006600, #003300);");
-        Scene scene = new Scene(bp, 400, 50);
+        Scene scene = new Scene(bp, 425, 100);
         primaryStage.setScene(scene);
         primaryStage.showAndWait();
     }

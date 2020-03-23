@@ -133,7 +133,14 @@ public class Main extends Application {
         if (player) {
             player1.getFrame().refill(gamePool);
         }
-        while (!endgame()&&!quit) {
+        int turns = 0;
+        while (!endgame(player1, player2, turns)&&!quit) {
+            if (player) {
+                System.out.println(player2.getName()+" your frame is:\n"+player2.getFrame().toString());
+            }
+            else {
+                System.out.println(player1.getName()+" your frame is:\n"+player1.getFrame().toString());
+            }
             Stage s = new Stage();
             InputPopUp playerInput = new InputPopUp();
             playerInput.start(s);
@@ -144,26 +151,59 @@ public class Main extends Application {
             if (playerInput.playerInput == "Q") {
                 primaryStage.close();
                 quit=true;
-            } else if (playerInput.playerInput == "P") {
-                player=!player;
-            } else if (playerInput.playerInput.matches("^EXCHANGE [A-Z]{1,7}$")) {
+            }
+            else if (playerInput.playerInput == "P") {
+                turns++;
+            }
+            else if (playerInput.playerInput.matches("^EXCHANGE [A-Z]{1,7}$")) {
                 if (player) {
-                    //EMPTY player 2's letters into Pool
-                    player2.getFrame().refill(gamePool);
+                    if (player2.getFrame().isAvailable(playerInput.playerInput.trim().replaceAll("EXCHANGE ", "")))
+                    {
+                        player2.getFrame().remove(playerInput.playerInput.trim().replaceAll("EXCHANGE ", ""));
+                        player2.getFrame().refill(gamePool);
+                        System.out.println(player2.getName()+" your frame is now:\n"+player2.getFrame().toString());
+                        turns = 0;
+                    }
+                    else
+                    {
+                        System.out.println("You do not have the letters required for this exchange!");
+                        player=!player;
+                        //turn num -- if necessary
+                    }
                 }
                 else{
-                    //EMPTY player 1's letters into Pool
-                    player1.getFrame().refill(gamePool);
+                    if (player1.getFrame().isAvailable(playerInput.playerInput.trim().replaceAll("EXCHANGE ", "")))
+                    {
+                        player1.getFrame().remove(playerInput.playerInput.trim().replaceAll("EXCHANGE ", ""));
+                        player1.getFrame().refill(gamePool);
+                        System.out.println(player1.getName()+" your frame is now:\n"+player1.getFrame().toString());
+                        turns = 0;
+                    }
+                    else
+                    {
+                        System.out.println("You do not have the letters required for this exchange!");
+                        player=!player;
+                        //turn num -- if necessary
+                    }
                 }
             } else {
                 if (player) {
                     //player 2 moves
                     game.move(myBoard, player2);
+                    turns = 0;
                 }
                 else {
                     game.move(myBoard, player1);
+                    turns = 0;
                 }
             }
+            if (player) {
+                player2.getFrame().refill(gamePool);
+            }
+            else {
+                player1.getFrame().refill(gamePool);
+            }
+            player=!player;
             Main.run();
         }
     }
@@ -252,8 +292,14 @@ public class Main extends Application {
         imageView.setStyle("-fx-border-width:1;");
         gridpane.add(imageView, c, r);
     }
-    public boolean endgame()
+    public boolean endgame(Player player1, Player player2, int turnsWOMove)
     {
+        if (player1.getFrame().isEmpty()||player2.getFrame().isEmpty()||turnsWOMove>5)
+        {
+            System.out.println("The game has finished!");
+            // get winner and congratulate
+            return true;
+        }
         return false;
     }
 }
