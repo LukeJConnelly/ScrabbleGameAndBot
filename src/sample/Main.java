@@ -123,9 +123,19 @@ public class Main extends Application {
         ArrayList<Tile> randPlayer2 = decisionPool.drawTiles(1);
         System.out.println(player1.getName() + ", your random tile is: " + randPlayer1);
         System.out.println(player2.getName() + ", your random tile is: " + randPlayer2);
-        /* need to decide winner here */
+        while (randPlayer1.get(0).getLetter()==randPlayer2.get(0).getLetter())
+        {
+            randPlayer1 = decisionPool.drawTiles(1);
+            randPlayer2 = decisionPool.drawTiles(1);
+            System.out.println(player1.getName() + ", your new random tile is: " + randPlayer1);
+            System.out.println(player2.getName() + ", your new random tile is: " + randPlayer2);
+        }
+        boolean player=false;   //Player 1 goes first if false, player 2 goes first if true
+        if((randPlayer1.get(0).getLetter()>randPlayer2.get(0).getLetter()&&randPlayer1.get(0).getLetter()!='_')||randPlayer2.get(0).getLetter()=='_')
+        {
+            player=true;
+        }
         boolean quit=false;
-        boolean player=false;   //set true if player 2 wins random tile
         if (!player) {
             player1.getFrame().refill(gamePool);
         }
@@ -168,7 +178,6 @@ public class Main extends Application {
                     {
                         System.out.println("You do not have the letters required for this exchange!");
                         player=!player;
-                        //turn num -- if necessary
                     }
                 }
                 else{
@@ -183,7 +192,6 @@ public class Main extends Application {
                     {
                         System.out.println("You do not have the letters required for this exchange!");
                         player=!player;
-                        //turn num -- if necessary
                     }
                 }
             } else {
@@ -298,8 +306,25 @@ public class Main extends Application {
         {
             System.out.println("The game has finished!");
             // get winner and congratulate
+            getWinner(player1, player2);
             return true;
         }
         return false;
+    }
+    public void getWinner(Player player1, Player player2)
+    {
+        System.out.println("The scores are:\n"+player1.getName()+" "+player1.getScore()+" - "+player2.getScore()+" "+player1.getName()+"");
+        if (player1.getScore()>player2.getScore())
+        {
+            System.out.println("Congratulations "+player1.getName()+"!");
+        }
+        else if (player1.getScore()>player2.getScore())
+        {
+            System.out.println("Congratulations "+player2.getName()+"!");
+        }
+        else
+        {
+            System.out.println("It's a draw! Everyone's a loser!");
+        }
     }
 }
