@@ -11,11 +11,8 @@ import java.util.Scanner;
 public class Scrabble {
     public static void main(String[] args) {
     }
-    public void turn(Board myBoard){
-        Tile myTile = new Tile('A');
-        myBoard.squares[0][0].add(myTile);
-        myBoard.squares[0][1].add(myTile);
-        myBoard.squares[0][2].add(myTile);
+    public void move(Board myBoard, Player currPlayer){
+
     }
 }
 //    public int numTurns = 0;

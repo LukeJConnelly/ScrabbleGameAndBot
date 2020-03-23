@@ -13,6 +13,8 @@ import javafx.scene.control.Button;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main extends Application {
     static GridPane gridpane = new GridPane();
@@ -98,8 +100,72 @@ public class Main extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
         Scrabble game = new Scrabble();
-        game.turn(myBoard);
-        Main.run();
+        System.out.println("Welcome to Scrabble!");
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Pool gamePool = new Pool();
+        Pool decisionPool = new Pool();
+
+        System.out.println("Player 1, Please enter your name: ");
+        Scanner newScanner = new Scanner(System.in);
+        String n;
+        n = newScanner.nextLine();
+        player1.setName(n);
+        System.out.println("Thank you " + player1.getName());
+
+        System.out.println("Player 2, Please enter your name: ");
+        n = newScanner.nextLine();
+        player2.setName(n);
+        System.out.println("Thank you " + player2.getName());
+
+        System.out.println("\nTo decide who goes first a random tile will be pulled for each player.");
+        ArrayList<Tile> randPlayer1 = decisionPool.drawTiles(1);
+        ArrayList<Tile> randPlayer2 = decisionPool.drawTiles(1);
+        System.out.println(player1.getName() + ", your random tile is: " + randPlayer1);
+        System.out.println(player2.getName() + ", your random tile is: " + randPlayer2);
+        /* need to decide winner here */
+        boolean quit=false;
+        boolean player=false;   //set true if player 2 wins random tile
+        if (!player) {
+            player1.getFrame().refill(gamePool);
+        }
+        player2.getFrame().refill(gamePool);
+        if (player) {
+            player1.getFrame().refill(gamePool);
+        }
+        while (!endgame()&&!quit) {
+            Stage s = new Stage();
+            InputPopUp playerInput = new InputPopUp();
+            playerInput.start(s);
+            while (playerInput.playerInput == "") {
+                System.out.println("Please make a move. If you do not wish to make a move, type PASS");
+                playerInput.start(s);
+            }
+            if (playerInput.playerInput == "Q") {
+                primaryStage.close();
+                quit=true;
+            } else if (playerInput.playerInput == "P") {
+                player=!player;
+            } else if (playerInput.playerInput.matches("^EXCHANGE [A-Z]{1,7}$")) {
+                if (player) {
+                    //EMPTY player 2's letters into Pool
+                    player2.getFrame().refill(gamePool);
+                }
+                else{
+                    //EMPTY player 1's letters into Pool
+                    player1.getFrame().refill(gamePool);
+                }
+            } else {
+                if (player) {
+                    //player 2 moves
+                    game.move(myBoard, player2);
+                }
+                else {
+                    game.move(myBoard, player1);
+                }
+            }
+            Main.run();
+        }
     }
 
     public static void run() throws FileNotFoundException {
@@ -170,7 +236,7 @@ public class Main extends Application {
     }
 
     public static void addLetter(int r, int c, Board myBoard) throws FileNotFoundException {
-        InputStream input;
+        FileInputStream input;
         if (myBoard.squares[r][c].getTile().isBlank())
         {
             input = new FileInputStream("src\\sample\\Scrabble Tiles\\0.png");
@@ -185,5 +251,9 @@ public class Main extends Application {
         imageView.setFitHeight(28);
         imageView.setStyle("-fx-border-width:1;");
         gridpane.add(imageView, c, r);
+    }
+    public boolean endgame()
+    {
+        return false;
     }
 }

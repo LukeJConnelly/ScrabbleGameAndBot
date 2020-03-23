@@ -40,6 +40,10 @@ public class Square {
         isOccupied = true;
         this.tile = tile;
     }
+    public void remove() {
+        isOccupied = false;
+        this.tile = null;
+    }
 
     public boolean isOccupied() {
         return isOccupied;
