@@ -11,77 +11,106 @@ import java.util.Scanner;
 public class Scrabble {
     public static void main(String[] args) {
     }
-    public void move(Board myBoard, Player currPlayer){
-        Tile myTile = new Tile ('A');
-        myBoard.squares[0][1].add(myTile);
+    public void setup(Player player1, Player player2, Pool gamePool, Pool decisionPool, boolean player){
+        System.out.println("Player 1, Please enter your name: ");
+        Scanner newScanner = new Scanner(System.in);
+        String n;
+        n = newScanner.nextLine();
+        player1.setName(n);
+        System.out.println("Thank you " + player1.getName());
+
+        System.out.println("Player 2, Please enter your name: ");
+        n = newScanner.nextLine();
+        player2.setName(n);
+        System.out.println("Thank you " + player2.getName());
+
+        System.out.println("\nTo decide who goes first a random tile will be pulled for each player.");
+        ArrayList<Tile> randPlayer1 = decisionPool.drawTiles(1);
+        ArrayList<Tile> randPlayer2 = decisionPool.drawTiles(1);
+        System.out.println(player1.getName() + ", your random tile is: " + randPlayer1);
+        System.out.println(player2.getName() + ", your random tile is: " + randPlayer2);
+        while (randPlayer1.get(0).getLetter()==randPlayer2.get(0).getLetter())
+        {
+            randPlayer1 = decisionPool.drawTiles(1);
+            randPlayer2 = decisionPool.drawTiles(1);
+            System.out.println(player1.getName() + ", your new random tile is: " + randPlayer1);
+            System.out.println(player2.getName() + ", your new random tile is: " + randPlayer2);
+        }
+        if((randPlayer1.get(0).getLetter()>randPlayer2.get(0).getLetter()&&randPlayer1.get(0).getLetter()!='_')||randPlayer2.get(0).getLetter()=='_')
+        {
+            player=true;
+        }
+        if (!player) {
+            player1.getFrame().refill(gamePool);
+        }
+        player2.getFrame().refill(gamePool);
+        if (player) {
+            player1.getFrame().refill(gamePool);
+        }
     }
-}
-//    public int numTurns = 0;
-//
-//    public static void main(String[] args) {
-//        Scrabble game = new Scrabble();
-//        System.out.println("Welcome to Scrabble!");
-//        Player player1 = new Player();
-//        Player player2 = new Player();
-//        Pool gamePool = new Pool();
-//        Pool decisionPool = new Pool();
-//
-//        System.out.println("Player 1, Please enter your name: ");
+    public void exchange(InputPopUp playerInput, boolean player, Player player1, Player player2, Pool gamePool, int turns)
+    {
+        if (player) {
+            if (player2.getFrame().isAvailable(playerInput.playerInput.trim().replaceAll("EXCHANGE ", "")))
+            {
+                player2.getFrame().remove(playerInput.playerInput.trim().replaceAll("EXCHANGE ", ""));
+                player2.getFrame().refill(gamePool);
+                System.out.println(player2.getName()+" your frame is now:\n"+player2.getFrame().toString());
+                turns = 0;
+            }
+            else
+            {
+                System.out.println("You do not have the letters required for this exchange!");
+                player=!player;
+            }
+        }
+        else{
+            if (player1.getFrame().isAvailable(playerInput.playerInput.trim().replaceAll("EXCHANGE ", "")))
+            {
+                player1.getFrame().remove(playerInput.playerInput.trim().replaceAll("EXCHANGE ", ""));
+                player1.getFrame().refill(gamePool);
+                System.out.println(player1.getName()+" your frame is now:\n"+player1.getFrame().toString());
+                turns = 0;
+            }
+            else
+            {
+                System.out.println("You do not have the letters required for this exchange!");
+                player=!player;
+            }
+        }
+    }
+    public boolean end(Player player1, Player player2, int turnsWOMove)
+    {
+        if (player1.getFrame().isEmpty()||player2.getFrame().isEmpty()||turnsWOMove>5)
+        {
+            System.out.println("\nThe game has finished!\n");
+            return true;
+        }
+        return false;
+    }
+    public void getWinner(Player player1, Player player2)
+    {
 //        Scanner newScanner = new Scanner(System.in);
-//        String n;
-//        n = newScanner.nextLine();
-//        player1.setName(n);
-//        System.out.println("Thank you " + player1.getName());
-//
-//        System.out.println("Player 2, Please enter your name: ");
-//        n = newScanner.nextLine();
-//        player2.setName(n);
-//        System.out.println("Thank you " + player2.getName());
-//
-//        System.out.println("\nTo decide who goes first a random tile will be pulled for each player.");
-//        ArrayList<Tile> randPlayer1 = decisionPool.drawTiles(1);
-//        ArrayList<Tile> randPlayer2 = decisionPool.drawTiles(1);
-//        System.out.println(player1.getName() + ", your random tile is: " + randPlayer1);
-//        System.out.println(player2.getName() + ", your random tile is: " + randPlayer2);
-//
-//        //how to get tile on own - .get(0)?        //what if its a blank tile
-////        if(randPlayer1.get(0).comparesTo(randPlayer2.get(0))){
-////
-////        }
-//    }
-//
-//    public void turn(Player currentPlayer) {
-//        //pull code for scanning testing in here
-//        System.out.println("It is currently " + currentPlayer.getName() + "'s turn.");
-//        System.out.println(currentPlayer.getFrame());
-//        System.out.println(currentPlayer.getScore());
-//        numTurns++;                                 //isnt tied to player is just global to the game - see in board? - used for legal placement
-//
-//        int scoreFromThisTurn = calculateScore(); // possibly make global
-//
-//        store until next turn;
-//        if (score < 100 or other criteria to end i.e pool empty ){
-//            if (numTurns % 2 == 0 probs wrong need to check ){
-//                turn(playerOne) else turn(Player 2)
-//            } else endGame()
-//        }
-//    }
-//
-//    public int calculateScore(input from the user?){
-//        getModifiers and getValues of word
-//        return score * modifier;
-//    }
-//
-//    public Player decideWinner(Player one, Player two){
-//        Player winner = null;
-//        if(one.getScore() > two.getScore()){
-//            winner = one;
-//        }else if(two.getScore() > one.getScore()){
-//            winner = two;
-//        }else {
-//            System.out.println("This game has resulted in a draw.");
-//        }
-//        return winner;
-//    }
-//
-//}
+//        int n;
+//        System.out.println("Please enter the penalties for "+player1.getName()+":");
+//        n = -1*newScanner.nextInt();
+//        player1.addScore(n);
+//        System.out.println("Please enter the penalties for "+player2.getName()+":");
+//        n = -1*newScanner.nextInt();
+//        player2.addScore(n);
+        System.out.println("The scores are:\n"+player1.getName()+" "+player1.getScore()+" - "+player2.getScore()+" "+player2.getName()+"\n");
+        if (player1.getScore()>player2.getScore())
+        {
+            System.out.println("Congratulations "+player1.getName()+"!");
+        }
+        else if (player1.getScore()>player2.getScore())
+        {
+            System.out.println("Congratulations "+player2.getName()+"!");
+        }
+        else
+        {
+            System.out.println("It's a draw! Everyone's a loser!");
+        }
+    }
+
+}
