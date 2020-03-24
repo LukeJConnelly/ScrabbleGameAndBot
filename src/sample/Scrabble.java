@@ -36,7 +36,7 @@ public class Scrabble {
             System.out.println(player1.getName() + ", your new random tile is: " + randPlayer1);
             System.out.println(player2.getName() + ", your new random tile is: " + randPlayer2);
         }
-        if((randPlayer1.get(0).getLetter()>randPlayer2.get(0).getLetter()&&randPlayer1.get(0).getLetter()!='_')||randPlayer2.get(0).getLetter()=='_')
+        if(randPlayer1.get(0).getLetter()>randPlayer2.get(0).getLetter())
         {
             player=true;
         }
@@ -78,6 +78,45 @@ public class Scrabble {
                 player=!player;
             }
         }
+    }
+    public void move(Board myBoard, Word currWord, Player currPlayer) {
+        myBoard.place(currPlayer.getFrame(), currWord);
+        currPlayer.addScore(calculateScore(myBoard, currPlayer, currWord));
+    }
+    public int calculateScore(Board board, Player currentPlayer, Word word) {  //input from the user?
+        int tally = 0;
+        int r = word.getFirstRow(), c = word.getFirstColumn();
+        if (word.isHorizontal()) {
+            for (int i = 0; i < word.getLength(); i++) {
+                if(board.squares[r][c+i].getLetterMuliplier()==2||board.squares[r][c+i].getLetterMuliplier()==3) {
+                    tally += board.squares[r][c + i].getLetterMuliplier() * board.squares[r][c + i].getTile().getValue();
+                }
+                else{
+                    tally += board.squares[r][c + i].getTile().getValue();
+                }
+            }
+            for (int i = 0; i < word.getLength(); i++) {
+                if(board.squares[r][c+i].getWordMultiplier()==2||board.squares[r][c+i].getWordMultiplier()==3) {
+                    tally *= board.squares[r][c + i].getWordMultiplier();
+                }
+            }
+        }
+        else {
+            for (int i = 0; i < word.getLength(); i++) {
+                if(board.squares[r+i][c].getLetterMuliplier()==2||board.squares[r+i][c].getLetterMuliplier()==3) {
+                    tally += board.squares[r+i][c].getLetterMuliplier() * board.squares[r+i][c].getTile().getValue();
+                }
+                else{
+                    tally += board.squares[r+i][c].getTile().getValue();
+                }
+            }
+            for (int i = 0; i < word.getLength(); i++) {
+                if(board.squares[r+i][c].getWordMultiplier()==2||board.squares[r+i][c].getWordMultiplier()==3) {
+                    tally *= board.squares[r+i][c].getWordMultiplier();
+                }
+            }
+        }
+        return tally;
     }
     public boolean end(Player player1, Player player2, int turnsWOMove)
     {
