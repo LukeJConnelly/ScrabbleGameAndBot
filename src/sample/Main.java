@@ -2,7 +2,6 @@ package sample;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -131,13 +130,31 @@ public class Main extends Application {
             } else if (playerInput.playerInput.matches("^EXCHANGE [A-Z]{1,7}$")) {
                 game.exchange(playerInput, player, player1, player2, gamePool, turns);
             } else {
+                String[] currMoveInput = playerInput.playerInput.toUpperCase().trim().split(" ");
+                boolean isHorizontal=true;
+                if (currMoveInput[1].toUpperCase().charAt(0)=='D'){isHorizontal=false;}
+                int moveCol = Character.getNumericValue(currMoveInput[0].charAt(1)) - 1;
+                int moveRow = currMoveInput[0].charAt(0);
+                moveRow-=65;
+                Word currWord = new Word(moveRow, moveCol, isHorizontal, currMoveInput[2]);
                 if (player) {
-                    //player 2 moves
-                    //game.move(myBoard, player2);
-                    turns = 0;
+                    if (myBoard.isLegal(player2.getFrame(), currWord)) {
+                        game.move(myBoard, currWord, player2);
+                        turns = 0;
+                    }
+                    else{
+                        player=!player;
+                        System.out.println("\nSorry, the word you want to place cannot be legally placed. Relevant error code: " + myBoard.getCheckCode());
+                    }
                 } else {
-                    //game.move(myBoard, player1);
-                    turns = 0;
+                    if (myBoard.isLegal(player1.getFrame(), currWord)) {
+                        game.move(myBoard, currWord, player1);
+                        turns = 0;
+                    }
+                    else{
+                        player=!player;
+                        System.out.println("\nSorry, the word you want to place cannot be legally placed. Relevant error code: " + myBoard.getCheckCode());
+                    }
                 }
             }
             if (player) {
@@ -146,6 +163,7 @@ public class Main extends Application {
                 player1.getFrame().refill(gamePool);
             }
             player = !player;
+            System.out.println("The scores are:\n"+player1.getName()+" "+player1.getScore()+" - "+player2.getScore()+" "+player2.getName()+"\n");
             Main.run();
         }
         game.getWinner(player1, player2);
@@ -228,74 +246,4 @@ public class Main extends Application {
         gridpane.add(imageView, c, r);
     }
 
-
-    public void move(Player currentPlayer, InputPopUp playerInput) {
-
-//        System.out.println("It is currently " + currentPlayer.getName() + "'s turn.");
-//        System.out.println(currentPlayer.getFrame());
-//        System.out.println("Your score is currently: "+ currentPlayer.getScore());
-//        System.out.println("Your opponent "+ otherPlayer.getName()+"'s score is currently: "+ otherPlayer.getScore());
-//
-//        int scoreFromThisTurn = calculateScore(); // possibly make global
-//        //do we even need this fucking variable??
-//        //what am i even using this for - should it just be popped straight into the players score variable
-//        //possibly need to hold until the next turn to check that the other player doesn't challenge it and then add it on?
-//
-//        //store until next turn;
-//        if (currentPlayer.getScore() < 100 && otherPlayer.getScore() < 100 && !pool.isEmpty()){
-//            turn(otherPlayer, currentPlayer, pool);
-//        } else {
-//            endgame(currentPlayer, otherPlayer, );
-//        }
-
-
-        /*TODO
-        check if word legal
-        place
-        score*/
-        String[] parsedInput = playerInput.getPlayerInput().split(" ");
-        //need to get coordinates
-        boolean direction = false;
-        if (parsedInput[1] == "A") {
-            direction = true;
-        } else {
-            direction = false;
-        }
-        Word word = new Word(parsedInput[0], parsedInput[0], direction, parsedInput[2]);
-        if (board.isLegal(currentPlayer.getFrame(), word)) {
-            //go ahead with placement
-            board.place(currentPlayer.getFrame(), word);
-            calculateScore(currentPlayer, word);
-        } else {
-            System.out.println("Sorry, the word you want to place cannot be legally placed. Relevant error code: " + board.getCheckCode());
-        }
-    }
-
-    public void calculateScore(Player currentPlayer, Word word) {  //input from the user?
-//        getModifiers and getValues of word
-//        tally for all the letter mods, then check for word mod, then add to total.
-
-        int tally = 0;
-        int r = word.getFirstRow(), c = word.getLastColumn();
-        String wordInput = word.getLetters();//need to break into chars to send into tile constructor
-        char[] parsedWord = new char[word.getLength()]; //need to make all these Tiles.
-        for (int i = 0; i < wordInput.length(); i++) {
-            parsedWord[i] = wordInput.charAt(i);
-        }
-        ArrayList<Tile> wordTiles = new ArrayList<>();
-        for (int i = 0; i < parsedWord.length; i++) {
-            wordTiles.add(new Tile(parsedWord[i]));
-        }
-
-        //ALSO NEED TO LOOP THROUGH [R][C] ? - not sure if i can increment like done below
-        //tile values and letter multipliers
-        for (int i = 0; i < wordTiles.size(); i++, r++, c++) {
-            tally += board.squares[r][c].getLetterMuliplier() * wordTiles.get(i).getValue();
-        }
-        for (int i = 0; i < wordTiles.size(); i++, r++, c++) {
-            tally *= board.squares[r][c].getWordMultiplier();
-        }
-
-        currentPlayer.addScore(tally);
-    }
 }
