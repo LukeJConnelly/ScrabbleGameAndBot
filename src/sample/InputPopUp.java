@@ -88,6 +88,8 @@ public class InputPopUp extends Application {
         primaryStage.showAndWait();
     }
 
+    public String getPlayerInput(){return (playerInput);}
+
     public static void main(String[] args) {
         Application.launch(args);
     }
