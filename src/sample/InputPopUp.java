@@ -24,7 +24,7 @@ public class InputPopUp extends Application {
         button.setOnAction(action -> {
             String input = "";
             input = textField.getText().toUpperCase();
-            if(!input.matches("^[A-O][1-9] [AD] [A-Z]{2,}$|^[A-O]1[0-5] [AD] [A-Z]{2,}$|^QUIT$|^PASS$|^HELP$|^EXCHANGE [A-Z]{1,7}$"))
+            if(!input.matches("^[A-O][1-9] [AD] [A-Z_]{2,}$|^[A-O]1[0-5] [AD] [A-Z_]{2,}$|^QUIT$|^PASS$|^HELP$|^EXCHANGE [A-Z]{1,7}$"))
             {
                 System.out.println("Input currently not recognized, please re-enter");
             }
@@ -55,7 +55,7 @@ public class InputPopUp extends Application {
                 playerInput=input;
                 primaryStage.close();
             }
-            else if (input.matches("^[A-O][1-9] [AD] [A-Z]{2,}$|^[A-O]1[0-5] [AD] [A-Z]{2,}$"))
+            else if (input.matches("^[A-O][1-9] [AD] [A-Z_]{2,}$|^[A-O]1[0-5] [AD] [A-Z_]{2,}$"))
             {
                 System.out.println("Following move will be made: "+input);
                 playerInput=input;

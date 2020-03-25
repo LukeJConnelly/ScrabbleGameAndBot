@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Scrabble {
     public static void main(String[] args) {
     }
-    public void setup(Player player1, Player player2, Pool gamePool, Pool decisionPool, boolean player){
+    public void setup(Player player1, Player player2, Pool gamePool, Pool decisionPool){
         System.out.println("Player 1, Please enter your name: ");
         Scanner newScanner = new Scanner(System.in);
         String n;
@@ -27,8 +27,16 @@ public class Scrabble {
         System.out.println("\nTo decide who goes first a random tile will be pulled for each player.");
         ArrayList<Tile> randPlayer1 = decisionPool.drawTiles(1);
         ArrayList<Tile> randPlayer2 = decisionPool.drawTiles(1);
+        //Test to check blank beats A
+        /*Tile blank = new Tile('_');
+        Tile not = new Tile('A');
+        randPlayer1 = new ArrayList<Tile>();
+        randPlayer2 = new ArrayList<Tile>();
+        randPlayer1.add(blank);
+        randPlayer2.add(not);*/
         System.out.println(player1.getName() + ", your random tile is: " + randPlayer1);
         System.out.println(player2.getName() + ", your random tile is: " + randPlayer2);
+
         while (randPlayer1.get(0).getLetter()==randPlayer2.get(0).getLetter())
         {
             randPlayer1 = decisionPool.drawTiles(1);
@@ -36,16 +44,35 @@ public class Scrabble {
             System.out.println(player1.getName() + ", your new random tile is: " + randPlayer1);
             System.out.println(player2.getName() + ", your new random tile is: " + randPlayer2);
         }
-        if(randPlayer1.get(0).getLetter()>randPlayer2.get(0).getLetter())
-        {
-            player=true;
-        }
-        if (!player) {
+
+        if(randPlayer1.get(0).getValue() == 0){ //null beats any letter, and we already know that they do not have matching tiles
             player1.getFrame().refill(gamePool);
-        }
-        player2.getFrame().refill(gamePool);
-        if (player) {
+            player2.getFrame().refill(gamePool);
+            System.out.println(player1.getName() + " will go first.");
+        } else if( randPlayer2.get(0).getValue() == 0){
+            //swap player 1 and 2
+            Player temp = new Player();
+            temp.setName(player1.getName());
+            player1.setName(player2.getName());
+            player2.setName(temp.getName());
+
             player1.getFrame().refill(gamePool);
+            player2.getFrame().refill(gamePool);
+            System.out.println(player1.getName() + " will go first.");
+        }else if(randPlayer1.get(0).getLetter()>randPlayer2.get(0).getLetter()) { // swap here as if p1 > p2, that means its letter is further down in the alphabet
+            //swap player 1 and 2
+            Player temp = new Player();
+            temp.setName(player1.getName());
+            player1.setName(player2.getName());
+            player2.setName(temp.getName());
+
+            player1.getFrame().refill(gamePool);
+            player2.getFrame().refill(gamePool);
+            System.out.println(player1.getName() + " will go first.");
+        } else {
+            player1.getFrame().refill(gamePool);
+            player2.getFrame().refill(gamePool);
+            System.out.println(player1.getName() + " will go first.");
         }
     }
     public void exchange(InputPopUp playerInput, boolean player, Player player1, Player player2, Pool gamePool, int turns)

@@ -12,7 +12,6 @@ import javafx.scene.control.Button;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 
 public class Main extends Application {
     static GridPane gridpane = new GridPane();
@@ -26,49 +25,72 @@ public class Main extends Application {
         Board myBoard = new Board();
         Main.board = myBoard;
         primaryStage.setTitle("Other Scrabbled Eggs Project");
-        gridpane.setMinSize(450, 450);
+        gridpane.setMinSize(480, 480);
         gridpane.setVgap(0);
         gridpane.setHgap(0);
         int r, c;
-        for (r = 0; r < 15; r++) {
-            for (c = 0; c < 15; c++) {
+        for (r = 0; r < 16; r++) {
+            for (c = 0; c < 16; c++) {
                 Button blank;
-                if (Main.board.squares[r][c].isDoubleLetter()) {
-                    blank = new Button("DL");
-                    blank.setStyle("-fx-background-color: #6666FF; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 14;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else if (Main.board.squares[r][c].isTripleLetter()) {
-                    blank = new Button("TL");
-                    blank.setStyle("-fx-background-color: #0133FF; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 14;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else if (Main.board.squares[r][c].isDoubleWord()) {
-                    blank = new Button("DW");
-                    blank.setStyle("-fx-background-color: #660466; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 14;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else if (Main.board.squares[r][c].isTripleWord() || r == 14 && c == 7) {
-                    blank = new Button("TW");
-                    blank.setStyle("-fx-background-color: #880101; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 14;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else {
+                if (r<15&&c<15) {
+                    if (Main.board.squares[r][c].isDoubleLetter()) {
+                        blank = new Button("DL");
+                        blank.setStyle("-fx-background-color: #6666FF; " +
+                                "-fx-border-width: 0;" +
+                                "-fx-font-size: 14;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-font-family: \"Arial\";" +
+                                "-fx-font-weight: bold");
+                    } else if (Main.board.squares[r][c].isTripleLetter()) {
+                        blank = new Button("TL");
+                        blank.setStyle("-fx-background-color: #0133FF; " +
+                                "-fx-border-width: 0;" +
+                                "-fx-font-size: 14;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-font-family: \"Arial\";" +
+                                "-fx-font-weight: bold");
+                    } else if (Main.board.squares[r][c].isDoubleWord()) {
+                        blank = new Button("DW");
+                        blank.setStyle("-fx-background-color: #660466; " +
+                                "-fx-border-width: 0;" +
+                                "-fx-font-size: 14;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-font-family: \"Arial\";" +
+                                "-fx-font-weight: bold");
+                    } else if (Main.board.squares[r][c].isTripleWord() || r == 14 && c == 7) {
+                        blank = new Button("TW");
+                        blank.setStyle("-fx-background-color: #880101; " +
+                                "-fx-border-width: 0;" +
+                                "-fx-font-size: 14;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-font-family: \"Arial\";" +
+                                "-fx-font-weight: bold");
+                    } else {
+                        blank = new Button("");
+                        blank.setStyle("-fx-background-color: #006600; " +
+                                "-fx-border-width: 0;");
+                    }
+                }
+                else if (r==15&&c==15) {
                     blank = new Button("");
-                    blank.setStyle("-fx-background-color: #006600; " +
+                    blank.setStyle("-fx-background-color: #002200; " +
                             "-fx-border-width: 0;");
+                } else if (r==15){
+                    blank = new Button(Integer.toString(c+1));
+                    blank.setStyle("-fx-background-color: #002200; " +
+                            "-fx-border-width: 0;" +
+                            "-fx-font-size: 18;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-family: \"Arial\";" +
+                            "-fx-font-weight: bold");
+                } else{
+                    blank = new Button(Character.toString((char) ('A'+r)));
+                    blank.setStyle("-fx-background-color: #002200; " +
+                            "-fx-border-width: 0;" +
+                            "-fx-font-size: 18;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-family: \"Arial\";" +
+                            "-fx-font-weight: bold");
                 }
                 blank.setPadding(Insets.EMPTY);
                 blank.setMinWidth(30);
@@ -83,18 +105,24 @@ public class Main extends Application {
         FileInputStream input1 = new FileInputStream("src\\sample\\Scrabble Tiles\\header.jpg");
         Image image1 = new Image(input1);
         ImageView imageView1 = new ImageView(image1);
-        imageView1.setFitWidth(450);
-        imageView1.setFitHeight(78);
-        border.setTop(imageView1);
+        imageView1.setFitWidth(480);
+        imageView1.setFitHeight(90);
+        HBox hbox = new HBox(imageView1);
+        hbox.setAlignment(Pos.CENTER);
+        hbox.setPadding(Insets.EMPTY);
+        border.setTop(hbox);
         FileInputStream input2 = new FileInputStream("src\\sample\\Scrabble Tiles\\footer.jpg");
         Image image2 = new Image(input2);
         ImageView imageView2 = new ImageView(image2);
-        imageView2.setFitWidth(450);
-        imageView2.setFitHeight(50);
-        border.setBottom(imageView2);
+        imageView2.setFitWidth(480);
+        imageView2.setFitHeight(60);
+        HBox hbox1 = new HBox(imageView2);
+        hbox1.setAlignment(Pos.CENTER);
+        hbox1.setPadding(Insets.EMPTY);
+        border.setBottom(hbox1);
         border.setCenter(gridpane);
         border.setStyle("-fx-background-color: #000000;");
-        Scene scene = new Scene(border, 450, 578);
+        Scene scene = new Scene(border, 480, 630);
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
@@ -106,7 +134,7 @@ public class Main extends Application {
         Pool decisionPool = new Pool();
         boolean quit = false;
         boolean player = false;   //Player 1 goes first if false, player 2 goes first if true
-        game.setup(player1, player2, gamePool, decisionPool, player);
+        game.setup(player1, player2, gamePool, decisionPool);
         int turns = 0;
         while (!game.end(player1, player2, turns) && !quit) {
             System.out.println();
@@ -133,9 +161,15 @@ public class Main extends Application {
                 String[] currMoveInput = playerInput.playerInput.toUpperCase().trim().split(" ");
                 boolean isHorizontal=true;
                 if (currMoveInput[1].toUpperCase().charAt(0)=='D'){isHorizontal=false;}
-                int moveCol = Character.getNumericValue(currMoveInput[0].charAt(1)) - 1;
-                int moveRow = currMoveInput[0].charAt(0);
-                moveRow-=65;
+                int moveRow=0;
+                if (playerInput.playerInput.matches("^[A-O][1-9] [AD] [A-Z_]{2,}$")) {
+                    moveRow = Character.getNumericValue(currMoveInput[0].charAt(1)) - 1;
+                }
+                else{
+                    moveRow = ((Character.getNumericValue(currMoveInput[0].charAt(1))*10)+Character.getNumericValue(currMoveInput[0].charAt(2))) - 1;
+                }
+                int moveCol = currMoveInput[0].charAt(0);
+                moveCol-=65;
                 Word currWord = new Word(moveRow, moveCol, isHorizontal, currMoveInput[2]);
                 if (player) {
                     if (myBoard.isLegal(player2.getFrame(), currWord)) {
@@ -172,45 +206,68 @@ public class Main extends Application {
     public static void run() throws FileNotFoundException {
         int r, c;
         gridpane.getChildren().clear();
-        for (r = 0; r < 15; r++) {
-            for (c = 0; c < 15; c++) {
+        for (r = 0; r < 16; r++) {
+            for (c = 0; c < 16; c++) {
                 Button blank;
-                if (Main.board.squares[r][c].isDoubleLetter()) {
-                    blank = new Button("DL");
-                    blank.setStyle("-fx-background-color: #6666FF; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 14;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else if (Main.board.squares[r][c].isTripleLetter()) {
-                    blank = new Button("TL");
-                    blank.setStyle("-fx-background-color: #0133FF; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 14;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else if (Main.board.squares[r][c].isDoubleWord()) {
-                    blank = new Button("DW");
-                    blank.setStyle("-fx-background-color: #660466; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 14;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else if (Main.board.squares[r][c].isTripleWord() || r == 14 && c == 7) {
-                    blank = new Button("TW");
-                    blank.setStyle("-fx-background-color: #880101; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 14;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else {
+                if (r<15&&c<15) {
+                    if (Main.board.squares[r][c].isDoubleLetter()) {
+                        blank = new Button("DL");
+                        blank.setStyle("-fx-background-color: #6666FF; " +
+                                "-fx-border-width: 0;" +
+                                "-fx-font-size: 14;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-font-family: \"Arial\";" +
+                                "-fx-font-weight: bold");
+                    } else if (Main.board.squares[r][c].isTripleLetter()) {
+                        blank = new Button("TL");
+                        blank.setStyle("-fx-background-color: #0133FF; " +
+                                "-fx-border-width: 0;" +
+                                "-fx-font-size: 14;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-font-family: \"Arial\";" +
+                                "-fx-font-weight: bold");
+                    } else if (Main.board.squares[r][c].isDoubleWord()) {
+                        blank = new Button("DW");
+                        blank.setStyle("-fx-background-color: #660466; " +
+                                "-fx-border-width: 0;" +
+                                "-fx-font-size: 14;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-font-family: \"Arial\";" +
+                                "-fx-font-weight: bold");
+                    } else if (Main.board.squares[r][c].isTripleWord() || r == 14 && c == 7) {
+                        blank = new Button("TW");
+                        blank.setStyle("-fx-background-color: #880101; " +
+                                "-fx-border-width: 0;" +
+                                "-fx-font-size: 14;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-font-family: \"Arial\";" +
+                                "-fx-font-weight: bold");
+                    } else {
+                        blank = new Button("");
+                        blank.setStyle("-fx-background-color: #006600; " +
+                                "-fx-border-width: 0;");
+                    }
+                }
+                else if (r==15&&c==15) {
                     blank = new Button("");
-                    blank.setStyle("-fx-background-color: #006600; " +
+                    blank.setStyle("-fx-background-color: #002200; " +
                             "-fx-border-width: 0;");
+                } else if (r==15){
+                    blank = new Button(Integer.toString(c+1));
+                    blank.setStyle("-fx-background-color: #002200; " +
+                            "-fx-border-width: 0;" +
+                            "-fx-font-size: 18;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-family: \"Arial\";" +
+                            "-fx-font-weight: bold");
+                } else{
+                    blank = new Button(Character.toString((char) ('A'+r)));
+                    blank.setStyle("-fx-background-color: #002200; " +
+                            "-fx-border-width: 0;" +
+                            "-fx-font-size: 18;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-family: \"Arial\";" +
+                            "-fx-font-weight: bold");
                 }
                 blank.setPadding(Insets.EMPTY);
                 blank.setMinWidth(30);
