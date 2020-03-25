@@ -35,7 +35,7 @@ public class Main extends Application {
                 if (r<15&&c<15) {
                     if (Main.board.squares[r][c].isDoubleLetter()) {
                         blank = new Button("DL");
-                        blank.setStyle("-fx-background-color: #6666FF; " +
+                        blank.setStyle("-fx-background-color: #6666FF; " +      //these are the things to swap into css jev
                                 "-fx-border-width: 0;" +
                                 "-fx-font-size: 14;" +
                                 "-fx-text-fill: white;" +

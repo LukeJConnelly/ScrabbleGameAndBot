@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 //Two player game of scrabble
 public class Scrabble {
-    public static void main(String[] args) {
-    }
+    public static void main(String[] args) { }
+
     public void setup(Player player1, Player player2, Pool gamePool, Pool decisionPool){
         System.out.println("Player 1, Please enter your name: ");
         Scanner newScanner = new Scanner(System.in);
@@ -27,13 +27,6 @@ public class Scrabble {
         System.out.println("\nTo decide who goes first a random tile will be pulled for each player.");
         ArrayList<Tile> randPlayer1 = decisionPool.drawTiles(1);
         ArrayList<Tile> randPlayer2 = decisionPool.drawTiles(1);
-        //Test to check blank beats A
-        /*Tile blank = new Tile('_');
-        Tile not = new Tile('A');
-        randPlayer1 = new ArrayList<Tile>();
-        randPlayer2 = new ArrayList<Tile>();
-        randPlayer1.add(blank);
-        randPlayer2.add(not);*/
         System.out.println(player1.getName() + ", your random tile is: " + randPlayer1);
         System.out.println(player2.getName() + ", your random tile is: " + randPlayer2);
 
@@ -74,7 +67,9 @@ public class Scrabble {
             player2.getFrame().refill(gamePool);
             System.out.println(player1.getName() + " will go first.");
         }
+        System.out.println("\nThe game has begun! Please see the board and player input pop ups. Type HELP in the Player Input window for more input info!");
     }
+
     public void exchange(InputPopUp playerInput, boolean player, Player player1, Player player2, Pool gamePool, int turns)
     {
         if (player) {
@@ -106,10 +101,12 @@ public class Scrabble {
             }
         }
     }
+
     public void move(Board myBoard, Word currWord, Player currPlayer) {
         myBoard.place(currPlayer.getFrame(), currWord);
         currPlayer.addScore(calculateScore(myBoard, currPlayer, currWord));
     }
+
     public int calculateScore(Board board, Player currentPlayer, Word word) {  //input from the user?
         int tally = 0;
         int r = word.getFirstRow(), c = word.getFirstColumn();
@@ -145,6 +142,7 @@ public class Scrabble {
         }
         return tally;
     }
+
     public boolean end(Player player1, Player player2, int turnsWOMove)
     {
         if (player1.getFrame().isEmpty()||player2.getFrame().isEmpty()||turnsWOMove>5)
@@ -154,29 +152,33 @@ public class Scrabble {
         }
         return false;
     }
-    public void getWinner(Player player1, Player player2)
-    {
-//        Scanner newScanner = new Scanner(System.in);
-//        int n;
-//        System.out.println("Please enter the penalties for "+player1.getName()+":");
-//        n = -1*newScanner.nextInt();
-//        player1.addScore(n);
-//        System.out.println("Please enter the penalties for "+player2.getName()+":");
-//        n = -1*newScanner.nextInt();
-//        player2.addScore(n);
-        System.out.println("The scores are:\n"+player1.getName()+" "+player1.getScore()+" - "+player2.getScore()+" "+player2.getName()+"\n");
+
+    public void getWinner(Player player1, Player player2) throws Exception {
+        Scanner newScanner = new Scanner(System.in);
+        int n;
+        System.out.println("Please enter the penalties for "+player1.getName()+":");
+        n = -1*newScanner.nextInt();
+        player1.addScore(n);
+        System.out.println("Please enter the penalties for "+player2.getName()+":");
+        n = -1*newScanner.nextInt();
+        player2.addScore(n);
+        String s = "";
+        s+="Final scores:\n"+player1.getName()+" "+player1.getScore()+" - "+player2.getScore()+" "+player2.getName()+"\n";
         if (player1.getScore()>player2.getScore())
         {
-            System.out.println("Congratulations "+player1.getName()+"!");
+            s+="Congratulations "+player1.getName()+"!";
         }
-        else if (player1.getScore()>player2.getScore())
+        else if (player2.getScore()>player1.getScore())
         {
-            System.out.println("Congratulations "+player2.getName()+"!");
+            s+="Congratulations "+player2.getName()+"!";
         }
         else
         {
-            System.out.println("It's a draw! Everyone's a loser!");
+            s+="It's a draw! Everyone's a loser!";
         }
+        WinnerPopUp endScreen = new WinnerPopUp();
+        endScreen.displayText=s;
+        Stage finalStage = new Stage();
+        endScreen.start(finalStage);
     }
-
 }
