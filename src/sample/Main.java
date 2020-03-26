@@ -14,104 +14,33 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public class Main extends Application {
-    static GridPane gridpane = new GridPane();
-    static Board board;
-
-    public Main() {
-    }
+    static GridPane gridpane = new GridPane();      // global as it is required for use in both start() and run()
+    static Board board;                             // global as it is required for use in both Main and Scrabble
+    public Main() {}
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         Board myBoard = new Board();
         Main.board = myBoard;
         primaryStage.setTitle("Other Scrabbled Eggs Project");
-        gridpane.setMinSize(480, 480);
+        gridpane.setMinSize(480, 480);      // square 30px for each tile on the 16 pane grid for board
         gridpane.setVgap(0);
         gridpane.setHgap(0);
-        int r, c;
-        for (r = 0; r < 16; r++) {
-            for (c = 0; c < 16; c++) {
-                Button blank;
-                if (r<15&&c<15) {
-                    if (Main.board.squares[r][c].isDoubleLetter()) {
-                        blank = new Button("DL");
-                        blank.setStyle("-fx-background-color: #6666FF; " +      //these are the things to swap into css jev
-                                "-fx-border-width: 0;" +
-                                "-fx-font-size: 14;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-font-family: \"Arial\";" +
-                                "-fx-font-weight: bold");
-                    } else if (Main.board.squares[r][c].isTripleLetter()) {
-                        blank = new Button("TL");
-                        blank.setStyle("-fx-background-color: #0133FF; " +
-                                "-fx-border-width: 0;" +
-                                "-fx-font-size: 14;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-font-family: \"Arial\";" +
-                                "-fx-font-weight: bold");
-                    } else if (Main.board.squares[r][c].isDoubleWord()) {
-                        blank = new Button("DW");
-                        blank.setStyle("-fx-background-color: #660466; " +
-                                "-fx-border-width: 0;" +
-                                "-fx-font-size: 14;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-font-family: \"Arial\";" +
-                                "-fx-font-weight: bold");
-                    } else if (Main.board.squares[r][c].isTripleWord() || r == 14 && c == 7) {
-                        blank = new Button("TW");
-                        blank.setStyle("-fx-background-color: #880101; " +
-                                "-fx-border-width: 0;" +
-                                "-fx-font-size: 14;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-font-family: \"Arial\";" +
-                                "-fx-font-weight: bold");
-                    } else {
-                        blank = new Button("");
-                        blank.setStyle("-fx-background-color: #006600; " +
-                                "-fx-border-width: 0;");
-                    }
-                }
-                else if (r==15&&c==15) {
-                    blank = new Button("");
-                    blank.setStyle("-fx-background-color: #002200; " +
-                            "-fx-border-width: 0;");
-                } else if (r==15){
-                    blank = new Button(Integer.toString(c+1));
-                    blank.setStyle("-fx-background-color: #002200; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 18;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else{
-                    blank = new Button(Character.toString((char) ('A'+r)));
-                    blank.setStyle("-fx-background-color: #002200; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 18;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                }
-                blank.setPadding(Insets.EMPTY);
-                blank.setMinWidth(30);
-                blank.setMinHeight(30);
-                gridpane.add(blank, r, c);
-            }
-        }
+        Main.run();                                 // initializing the board with no letters
         gridpane.setStyle("-fx-background-color: #000000;");
         gridpane.setAlignment(Pos.CENTER);
 
         BorderPane border = new BorderPane();
-        FileInputStream input1 = new FileInputStream("src\\sample\\Scrabble Tiles\\header.jpg");
+        FileInputStream input1 = new FileInputStream("src\\sample\\Scrabble Tiles\\header.jpg");    //now taking in a header image file and converting to an image view
         Image image1 = new Image(input1);
         ImageView imageView1 = new ImageView(image1);
         imageView1.setFitWidth(480);
         imageView1.setFitHeight(90);
         HBox hbox = new HBox(imageView1);
-        hbox.setAlignment(Pos.CENTER);
+        hbox.setAlignment(Pos.CENTER);      //centering image using hbox - it looked ugly on laptops with different aspect ratios otherwise
         hbox.setPadding(Insets.EMPTY);
         border.setTop(hbox);
-        FileInputStream input2 = new FileInputStream("src\\sample\\Scrabble Tiles\\footer.jpg");
+        FileInputStream input2 = new FileInputStream("src\\sample\\Scrabble Tiles\\footer.jpg");    // repeating the process with a footer image
         Image image2 = new Image(input2);
         ImageView imageView2 = new ImageView(image2);
         imageView2.setFitWidth(480);
@@ -119,68 +48,68 @@ public class Main extends Application {
         HBox hbox1 = new HBox(imageView2);
         hbox1.setAlignment(Pos.CENTER);
         hbox1.setPadding(Insets.EMPTY);
-        border.setBottom(hbox1);
+        border.setBottom(hbox1);        //setting areas of the borderpane
         border.setCenter(gridpane);
         border.setStyle("-fx-background-color: #000000;");
         Scene scene = new Scene(border, 480, 630);
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(false);       //done so as to preserve a neat presentation
         primaryStage.show();
-        Scrabble game = new Scrabble();
+        //end of window set up
+        Scrabble game = new Scrabble();             // now introducing the actual gameplay
         System.out.println("Welcome to Scrabble!");
         Player player1 = new Player();
         Player player2 = new Player();
         Pool gamePool = new Pool();
-        Pool decisionPool = new Pool();
+        Pool decisionPool = new Pool();   // declaring everything we need to play, so it can be passed if needed
         boolean quit = false;
         boolean player = false;   //Player 1 goes first if false, player 2 goes first if true
-        game.setup(player1, player2, gamePool, decisionPool);
+        game.setup(player1, player2, gamePool, decisionPool);           // takes in names and decides player order
         int turns = 0;
-        while (!game.end(player1, player2, turns) && !quit) {
+        while (!game.end(player1, player2, turns) && !quit) {           // if the game isnt over and the player hasnt quit we play
             System.out.println();
-            if (player) {
-                System.out.println(player2.getName() + " your frame is:\n" + player2.getFrame().toString());
+            if (player) {       //we use a boolean player and if statements to differentiate between turns
+                System.out.println(player2.getName() + " your frame is:\n" + player2.getFrame().toString());//first giving the player their frame
             } else {
                 System.out.println(player1.getName() + " your frame is:\n" + player1.getFrame().toString());
             }
             Stage s = new Stage();
-            InputPopUp playerInput = new InputPopUp();
+            InputPopUp playerInput = new InputPopUp();      //this takes in the players input as scanner cant run in conjunction with an application
             playerInput.start(s);
-            while (playerInput.playerInput == "") {
+            while (playerInput.playerInput == "") {         // if player closes input window we open it again for them
                 System.out.println("\nPlease make a move. If you do not wish to make a move, type PASS");
                 playerInput.start(s);
             }
-            if (playerInput.playerInput == "Q") {
+            if (playerInput.playerInput == "Q") {       //QUIT
                 primaryStage.close();
-                quit = true;
-            } else if (playerInput.playerInput == "P") {
-                turns++;
+                quit = true;            // window closes and loop will end
+            } else if (playerInput.playerInput == "P") {        //PASS
+                turns++;    //just let the turn go, but keep a count of how many turns in a row have been passed - 6 ends game
             } else if (playerInput.playerInput.matches("^EXCHANGE [A-Z]{1,7}$")) {
-                game.exchange(playerInput, player, player1, player2, gamePool, turns);
-            } else {
-                String[] currMoveInput = playerInput.playerInput.toUpperCase().trim().split(" ");
+                game.exchange(playerInput, player, player1, player2, gamePool, turns);  //exchange is handled in scrabble
+            } else {    //player makes valid move
+                String[] currMoveInput = playerInput.playerInput.toUpperCase().trim().split(" ");   //split input by the spaces to understand
                 boolean isHorizontal=true;
-                if (currMoveInput[1].toUpperCase().charAt(0)=='D'){isHorizontal=false;}
+                if (currMoveInput[1].toUpperCase().charAt(0)=='D'){isHorizontal=false;} // set isHorizontal to false if they typed d instead of a
                 int moveRow=0;
-                if (playerInput.playerInput.matches("^[A-O][1-9] [AD] [A-Z_]{2,}$")) {
+                if (playerInput.playerInput.matches("^[A-O][1-9] [AD] [A-Z_]{2,}$")) {  // this just discerns between rows that are one or two digits
                     moveRow = Character.getNumericValue(currMoveInput[0].charAt(1)) - 1;
-                }
-                else{
+                } else{
                     moveRow = ((Character.getNumericValue(currMoveInput[0].charAt(1))*10)+Character.getNumericValue(currMoveInput[0].charAt(2))) - 1;
                 }
-                int moveCol = currMoveInput[0].charAt(0);
+                int moveCol = currMoveInput[0].charAt(0);   // making handy use of how chars cast to ints
                 moveCol-=65;
-                Word currWord = new Word(moveRow, moveCol, isHorizontal, currMoveInput[2]);
+                Word currWord = new Word(moveRow, moveCol, isHorizontal, currMoveInput[2]); // now we can use the word constructor on the pllayers inputs
                 if (player) {
                     if (myBoard.isLegal(player2.getFrame(), currWord)) {
-                        game.move(myBoard, currWord, player2);
+                        game.move(myBoard, currWord, player2);  //moves are handled in scrabb;e
                         turns = 0;
                     }
-                    else{
-                        player=!player;
+                    else{       // they have to take their turn again
+                        player=!player;     //negates the flipping of the turns
                         System.out.println("\nSorry, the word you want to place cannot be legally placed. Relevant error code: " + myBoard.getCheckCode());
                     }
-                } else {
+                } else {        //same process goes for player 1's move
                     if (myBoard.isLegal(player1.getFrame(), currWord)) {
                         game.move(myBoard, currWord, player1);
                         turns = 0;
@@ -191,93 +120,67 @@ public class Main extends Application {
                     }
                 }
             }
-            if (player) {
+            if (player) {   //refill relevant players frame
                 player2.getFrame().refill(gamePool);
             } else {
                 player1.getFrame().refill(gamePool);
             }
-            player = !player;
+            player = !player;   // flip turns
             System.out.println("The scores are:\n"+player1.getName()+" "+player1.getScore()+" - "+player2.getScore()+" "+player2.getName()+"\n");
-            Main.run();
+            Main.run();     //update board display
         }
-        game.getWinner(player1, player2);
+        game.getWinner(player1, player2);   // game decides a winner
     }
 
     public static void run() throws FileNotFoundException {
         int r, c;
-        gridpane.getChildren().clear();
+        gridpane.getChildren().clear();     //get rid of whatevers there, in future letters could be removed by CHALLENGE
         for (r = 0; r < 16; r++) {
             for (c = 0; c < 16; c++) {
-                Button blank;
-                if (r<15&&c<15) {
-                    if (Main.board.squares[r][c].isDoubleLetter()) {
+                Button blank;   // a button which can be used in the following if statements
+                if (r<15&&c<15) {   //playable board area
+                    if (Main.board.squares[r][c].isDoubleLetter()) {    //each square has specific text/styling
                         blank = new Button("DL");
-                        blank.setStyle("-fx-background-color: #6666FF; " +
-                                "-fx-border-width: 0;" +
-                                "-fx-font-size: 14;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-font-family: \"Arial\";" +
-                                "-fx-font-weight: bold");
+                        blank.setStyle("-fx-background-color: #6666FF; -fx-border-width: 0; -fx-font-size: 14;" +
+                                "-fx-text-fill: white; -fx-font-family: \"Arial\"; -fx-font-weight: bold");
                     } else if (Main.board.squares[r][c].isTripleLetter()) {
                         blank = new Button("TL");
-                        blank.setStyle("-fx-background-color: #0133FF; " +
-                                "-fx-border-width: 0;" +
-                                "-fx-font-size: 14;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-font-family: \"Arial\";" +
-                                "-fx-font-weight: bold");
+                        blank.setStyle("-fx-background-color: #0133FF; -fx-border-width: 0; -fx-font-size: 14;" +
+                                "-fx-text-fill: white; -fx-font-family: \"Arial\"; -fx-font-weight: bold");
                     } else if (Main.board.squares[r][c].isDoubleWord()) {
                         blank = new Button("DW");
-                        blank.setStyle("-fx-background-color: #660466; " +
-                                "-fx-border-width: 0;" +
-                                "-fx-font-size: 14;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-font-family: \"Arial\";" +
-                                "-fx-font-weight: bold");
+                        blank.setStyle("-fx-background-color: #660466; -fx-border-width: 0; -fx-font-size: 14;" +
+                                "-fx-text-fill: white; -fx-font-family: \"Arial\"; -fx-font-weight: bold");
                     } else if (Main.board.squares[r][c].isTripleWord() || r == 14 && c == 7) {
                         blank = new Button("TW");
-                        blank.setStyle("-fx-background-color: #880101; " +
-                                "-fx-border-width: 0;" +
-                                "-fx-font-size: 14;" +
-                                "-fx-text-fill: white;" +
-                                "-fx-font-family: \"Arial\";" +
-                                "-fx-font-weight: bold");
+                        blank.setStyle("-fx-background-color: #880101; -fx-border-width: 0; -fx-font-size: 14;" +
+                                "-fx-text-fill: white; -fx-font-family: \"Arial\"; -fx-font-weight: bold");
                     } else {
                         blank = new Button("");
-                        blank.setStyle("-fx-background-color: #006600; " +
-                                "-fx-border-width: 0;");
+                        blank.setStyle("-fx-background-color: #006600; -fx-border-width: 0;");
                     }
                 }
-                else if (r==15&&c==15) {
+                else if (r==15&&c==15) {    //corner of row labels
                     blank = new Button("");
-                    blank.setStyle("-fx-background-color: #002200; " +
-                            "-fx-border-width: 0;");
-                } else if (r==15){
-                    blank = new Button(Integer.toString(c+1));
-                    blank.setStyle("-fx-background-color: #002200; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 18;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
-                } else{
-                    blank = new Button(Character.toString((char) ('A'+r)));
-                    blank.setStyle("-fx-background-color: #002200; " +
-                            "-fx-border-width: 0;" +
-                            "-fx-font-size: 18;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-font-family: \"Arial\";" +
-                            "-fx-font-weight: bold");
+                    blank.setStyle("-fx-background-color: #002200; -fx-border-width: 0;");
+                } else if (r==15){      //numbers
+                    blank = new Button(Integer.toString(c+1));  //number to string
+                    blank.setStyle("-fx-background-color: #002200; -fx-border-width: 0; -fx-font-size: 18;" +
+                            "-fx-text-fill: white; -fx-font-family: \"Arial\"; -fx-font-weight: bold");
+                } else{         //letters
+                    blank = new Button(Character.toString((char) ('A'+r))); //number to char to string
+                    blank.setStyle("-fx-background-color: #002200; -fx-border-width: 0; -fx-font-size: 18;" +
+                            "-fx-text-fill: white; -fx-font-family: \"Arial\"; -fx-font-weight: bold");
                 }
                 blank.setPadding(Insets.EMPTY);
                 blank.setMinWidth(30);
                 blank.setMinHeight(30);
-                gridpane.add(blank, r, c);
+                gridpane.add(blank, r, c);  // add our new buttons
             }
         }
         for (r = 0; r < 15; r++) {
             for (c = 0; c < 15; c++) {
-                if (Main.board.squares[r][c].isOccupied()) {
+                if (Main.board.squares[r][c].isOccupied()) {    //loop over again and if we
                     addLetter(r, c, Main.board);
                 }
             }
@@ -290,17 +193,17 @@ public class Main extends Application {
 
     public static void addLetter(int r, int c, Board myBoard) throws FileNotFoundException {
         FileInputStream input;
-        if (myBoard.squares[r][c].getTile().isBlank()) {
+        if (myBoard.squares[r][c].getTile().isBlank()) {        //blank has a specific image
             input = new FileInputStream("src\\sample\\Scrabble Tiles\\0.png");
-        } else {
+        } else {        // just find the character.png - we made these ourselves in ms paint :)
             input = new FileInputStream("src\\sample\\Scrabble Tiles\\" + myBoard.squares[r][c].getTile().getLetter() + ".png");
         }
         Image image = new Image(input);
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(28);
-        imageView.setFitHeight(28);
+        imageView.setFitHeight(28);     //slightly smaller than squares - i like how it seems like it sits on the board
         imageView.setStyle("-fx-border-width:1;");
-        gridpane.add(imageView, c, r);
+        gridpane.add(imageView, c, r);      // finally add our image
     }
 
 }
