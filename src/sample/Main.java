@@ -31,9 +31,11 @@ public class Main extends Application {
         Main.run();                                 // initializing the board with no letters
         gridpane.setStyle("-fx-background-color: #000000;");
         gridpane.setAlignment(Pos.CENTER);
-
+        FileInputStream fav = new FileInputStream("Scrabble Tiles/S.png");
+        Image favicon = new Image(fav);
+        primaryStage.getIcons().add(favicon);
         BorderPane border = new BorderPane();
-        FileInputStream input1 = new FileInputStream("/Scrabble Tiles/header.jpg");    //now taking in a header image file and converting to an image view
+        FileInputStream input1 = new FileInputStream("Scrabble Tiles/header.jpg");    //now taking in a header image file and converting to an image view
         Image image1 = new Image(input1);
         ImageView imageView1 = new ImageView(image1);
         imageView1.setFitWidth(480);
@@ -42,7 +44,7 @@ public class Main extends Application {
         hbox.setAlignment(Pos.CENTER);      //centering image using hbox - it looked ugly on laptops with different aspect ratios otherwise
         hbox.setPadding(Insets.EMPTY);
         border.setTop(hbox);
-        FileInputStream input2 = new FileInputStream("/Scrabble Tiles/footer.jpg");    // repeating the process with a footer image
+        FileInputStream input2 = new FileInputStream("Scrabble Tiles/footer.jpg");    // repeating the process with a footer image
         Image image2 = new Image(input2);
         ImageView imageView2 = new ImageView(image2);
         imageView2.setFitWidth(480);
@@ -89,7 +91,7 @@ public class Main extends Application {
             } else if (playerInput.playerInput == "P") {        //PASS
                 turns++;    //just let the turn go, but keep a count of how many turns in a row have been passed - 6 ends game
             } else if (playerInput.playerInput == "C") {        //CHALLENGE
-                if(prevWord==null)
+                if(myBoard.numPlays==0)
                 {
                     System.out.println("There has not been a word played yet! Please make another move");
                     player=!player;
@@ -220,9 +222,9 @@ public class Main extends Application {
     public static void addLetter(int r, int c, Board myBoard) throws FileNotFoundException {
         FileInputStream input;
         if (myBoard.squares[r][c].getTile().isBlank()) {        //blank has a specific image
-            input = new FileInputStream("/Scrabble Tiles/0.png");
+            input = new FileInputStream("Scrabble Tiles/0.png");
         } else {        // just find the character.png - we made these ourselves in ms paint :)
-            input = new FileInputStream("/Scrabble Tiles/" + myBoard.squares[r][c].getTile().getLetter() + ".png");
+            input = new FileInputStream("Scrabble Tiles/" + myBoard.squares[r][c].getTile().getLetter() + ".png");
         }
         Image image = new Image(input);
         ImageView imageView = new ImageView(image);
@@ -233,9 +235,9 @@ public class Main extends Application {
     }
 
     public static boolean isWord(String word) throws FileNotFoundException {
-        Scanner dictionary = new Scanner(new File("/Scrabble Tiles/dictionary.txt"));
+        Scanner dictionary = new Scanner(new File("Scrabble Tiles/dictionary.txt"));
         while (dictionary.hasNextLine() != false) {
-            if (dictionary.nextLine() == word) {
+            if (word.equals(dictionary.nextLine())) {
                 return true;
             }
         }

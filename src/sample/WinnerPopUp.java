@@ -3,14 +3,21 @@ package sample;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+
+import java.io.FileInputStream;
+
 public class WinnerPopUp extends Application {
     public String displayText="";   // passed into this class by getWinner() in Scrabble.java
     public void start(Stage s) throws Exception
     {
         s.setTitle("Game Finished!");
+        FileInputStream fav = new FileInputStream("Scrabble Tiles/S.png");
+        Image favicon = new Image(fav);
+        s.getIcons().add(favicon);
         // create a label with final message about game to players
         Label b = new Label(displayText);
         b.setTextAlignment(TextAlignment.CENTER);

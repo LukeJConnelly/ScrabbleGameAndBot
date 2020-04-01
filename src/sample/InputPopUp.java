@@ -6,9 +6,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+
+import java.io.FileInputStream;
 
 public class InputPopUp extends Application {
 
@@ -16,6 +19,9 @@ public class InputPopUp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Player Input");
+        FileInputStream fav = new FileInputStream("Scrabble Tiles/S.png");
+        Image favicon = new Image(fav);
+        primaryStage.getIcons().add(favicon);
         TextField textField = new TextField();
         Button button = new Button("Make Move");
 

@@ -47,7 +47,7 @@ public class Board {
 
     public Square[][] squares;
     private int checkCode;
-    private int numPlays;
+    public int numPlays;
 
     Board() {
         squares = new Square[BOARD_SIZE][BOARD_SIZE];
@@ -195,7 +195,7 @@ public class Board {
                 r++;
             }
         }
-        numPlays++;
+        numPlays--;
     }
 
 }
