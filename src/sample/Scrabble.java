@@ -108,11 +108,16 @@ public class Scrabble {
     //method for a player(currPlayer) to place a word(currWord) on the board(myBoard)
     public void move(Board myBoard, Word currWord, Player currPlayer) {
         myBoard.place(currPlayer.getFrame(), currWord);
-        currPlayer.addScore(calculateScore(myBoard, currPlayer, currWord));//increasing score for player
+        currPlayer.addScore(calculateScore(myBoard, currWord));//increasing score for player
+    }
+
+    public void unmove(Board myBoard, Word currWord, Player currPlayer) {
+        myBoard.unplace(currPlayer.getFrame(), currWord);
+        currPlayer.addScore(-1*calculateScore(myBoard, currWord));//increasing score for player
     }
 
     //method to calculate how much a placed word should be worth
-    public int calculateScore(Board board, Player currentPlayer, Word word) {  //input from the user?
+    public int calculateScore(Board board, Word word) {  //input from the user?
         int tally = 0;
         int r = word.getFirstRow(), c = word.getFirstColumn();
         if (word.isHorizontal()) {
@@ -175,7 +180,7 @@ public class Scrabble {
         else if (player2.getScore() > player1.getScore()) {
             s += "Congratulations " + player2.getName() + "!\n";
         }
-        else if (player2.getScore() == player1.getScore()) {
+        else {
             s += "It's a draw! Everyone's a loser!\n";
         }
         s+="Thanks for Playing!";
@@ -185,6 +190,5 @@ public class Scrabble {
         endScreen.start(finalStage);    //game is over
     }
 }
-
 
 

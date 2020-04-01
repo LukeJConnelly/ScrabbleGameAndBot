@@ -10,8 +10,10 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 public class Main extends Application {
     static GridPane gridpane = new GridPane();      // global as it is required for use in both start() and run()
@@ -31,7 +33,7 @@ public class Main extends Application {
         gridpane.setAlignment(Pos.CENTER);
 
         BorderPane border = new BorderPane();
-        FileInputStream input1 = new FileInputStream("src\\sample\\Scrabble Tiles\\header.jpg");    //now taking in a header image file and converting to an image view
+        FileInputStream input1 = new FileInputStream("/Scrabble Tiles/header.jpg");    //now taking in a header image file and converting to an image view
         Image image1 = new Image(input1);
         ImageView imageView1 = new ImageView(image1);
         imageView1.setFitWidth(480);
@@ -40,7 +42,7 @@ public class Main extends Application {
         hbox.setAlignment(Pos.CENTER);      //centering image using hbox - it looked ugly on laptops with different aspect ratios otherwise
         hbox.setPadding(Insets.EMPTY);
         border.setTop(hbox);
-        FileInputStream input2 = new FileInputStream("src\\sample\\Scrabble Tiles\\footer.jpg");    // repeating the process with a footer image
+        FileInputStream input2 = new FileInputStream("/Scrabble Tiles/footer.jpg");    // repeating the process with a footer image
         Image image2 = new Image(input2);
         ImageView imageView2 = new ImageView(image2);
         imageView2.setFitWidth(480);
@@ -66,6 +68,7 @@ public class Main extends Application {
         boolean player = false;   //Player 1 goes first if false, player 2 goes first if true
         game.setup(player1, player2, gamePool, decisionPool);           // takes in names and decides player order
         int turns = 0;
+        Word prevWord=null;
         while (!game.end(player1, player2, turns) && !quit) {           // if the game isnt over and the player hasnt quit we play
             System.out.println();
             if (player) {       //we use a boolean player and if statements to differentiate between turns
@@ -85,6 +88,22 @@ public class Main extends Application {
                 quit = true;            // window closes and loop will end
             } else if (playerInput.playerInput == "P") {        //PASS
                 turns++;    //just let the turn go, but keep a count of how many turns in a row have been passed - 6 ends game
+            } else if (playerInput.playerInput == "C") {        //CHALLENGE
+                if(prevWord==null)
+                {
+                    System.out.println("There has not been a word played yet! Please make another move");
+                    player=!player;
+                }
+                else if(isWord(prevWord.getLetters()))
+                {
+                    System.out.println("Challenge failed, "+prevWord.getLetters()+" is in the dictionary");
+                }
+                else
+                {
+                    System.out.println("Challenge success, "+prevWord.getLetters()+" is not in the dictionary");
+                    player=!player;
+                    game.unmove(myBoard, prevWord, player? player2:player1);
+                }
             } else if (playerInput.playerInput.matches("^EXCHANGE [A-Z]{1,7}$")) {
                 game.exchange(playerInput, player, player1, player2, gamePool, turns);  //exchange is handled in scrabble
             } else {    //player makes valid move
@@ -104,6 +123,7 @@ public class Main extends Application {
                     if (myBoard.isLegal(player2.getFrame(), currWord)) {
                         game.move(myBoard, currWord, player2);  //moves are handled in scrabb;e
                         turns = 0;
+                        prevWord = currWord;
                     }
                     else{       // they have to take their turn again
                         player=!player;     //negates the flipping of the turns
@@ -113,6 +133,7 @@ public class Main extends Application {
                     if (myBoard.isLegal(player1.getFrame(), currWord)) {
                         game.move(myBoard, currWord, player1);
                         turns = 0;
+                        prevWord = currWord;
                     }
                     else{
                         player=!player;
@@ -194,9 +215,9 @@ public class Main extends Application {
     public static void addLetter(int r, int c, Board myBoard) throws FileNotFoundException {
         FileInputStream input;
         if (myBoard.squares[r][c].getTile().isBlank()) {        //blank has a specific image
-            input = new FileInputStream("src\\sample\\Scrabble Tiles\\0.png");
+            input = new FileInputStream("/Scrabble Tiles/0.png");
         } else {        // just find the character.png - we made these ourselves in ms paint :)
-            input = new FileInputStream("src\\sample\\Scrabble Tiles\\" + myBoard.squares[r][c].getTile().getLetter() + ".png");
+            input = new FileInputStream("/Scrabble Tiles/" + myBoard.squares[r][c].getTile().getLetter() + ".png");
         }
         Image image = new Image(input);
         ImageView imageView = new ImageView(image);
@@ -206,4 +227,13 @@ public class Main extends Application {
         gridpane.add(imageView, c, r);      // finally add our image
     }
 
+    public static boolean isWord(String word) throws FileNotFoundException {
+        Scanner dictionary = new Scanner(new File("/Scrabble Tiles/dictionary.txt"));
+        while (dictionary.hasNextLine() != false) {
+            if (dictionary.nextLine() == word) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
