@@ -182,12 +182,13 @@ public class Board {
         numPlays++;
     }
 
-    public void unplace(Frame frame, Word word) {
+    public void unplace(Word word) {
         int r = word.getFirstRow();
         int c = word.getFirstColumn();
         for (int i=0; i<word.getLength(); i++) {
-            //potential if needed? if tile was placed previously on the board
-            squares[r][c].remove();
+            if(squares[r][c].getTile().turnsOnBoard==1) {
+                squares[r][c].remove();
+            }
             if (word.isHorizontal()) {
                 c++;
             } else {

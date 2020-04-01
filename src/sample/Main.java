@@ -94,6 +94,7 @@ public class Main extends Application {
                     System.out.println("There has not been a word played yet! Please make another move");
                     player=!player;
                 }
+                // check peripheral words for legality
                 else if(isWord(prevWord.getLetters()))
                 {
                     System.out.println("Challenge failed, "+prevWord.getLetters()+" is in the dictionary");
@@ -103,9 +104,11 @@ public class Main extends Application {
                     System.out.println("Challenge success, "+prevWord.getLetters()+" is not in the dictionary");
                     player=!player;
                     game.unmove(myBoard, prevWord, player? player2:player1);
+                    Main.run();     //update board display
                 }
             } else if (playerInput.playerInput.matches("^EXCHANGE [A-Z]{1,7}$")) {
                 game.exchange(playerInput, player, player1, player2, gamePool, turns);  //exchange is handled in scrabble
+                Main.run();     //update board display
             } else {    //player makes valid move
                 String[] currMoveInput = playerInput.playerInput.toUpperCase().trim().split(" ");   //split input by the spaces to understand
                 boolean isHorizontal=true;
@@ -124,6 +127,7 @@ public class Main extends Application {
                         game.move(myBoard, currWord, player2);  //moves are handled in scrabb;e
                         turns = 0;
                         prevWord = currWord;
+                        Main.run();     //update board display
                     }
                     else{       // they have to take their turn again
                         player=!player;     //negates the flipping of the turns
@@ -134,6 +138,7 @@ public class Main extends Application {
                         game.move(myBoard, currWord, player1);
                         turns = 0;
                         prevWord = currWord;
+                        Main.run();     //update board display
                     }
                     else{
                         player=!player;
@@ -148,7 +153,6 @@ public class Main extends Application {
             }
             player = !player;   // flip turns
             System.out.println("The scores are:\n"+player1.getName()+" "+player1.getScore()+" - "+player2.getScore()+" "+player2.getName()+"\n");
-            Main.run();     //update board display
         }
         game.getWinner(player1, player2);   // game decides a winner
     }
@@ -203,6 +207,7 @@ public class Main extends Application {
             for (c = 0; c < 15; c++) {
                 if (Main.board.squares[r][c].isOccupied()) {    //loop over again and if we
                     addLetter(r, c, Main.board);
+                    Main.board.squares[r][c].getTile().turnsOnBoard++;
                 }
             }
         }

@@ -7,6 +7,7 @@ public class Tile {
     private boolean blank;
     private char letter;
     private int value;
+    public int turnsOnBoard=0;
 
     // Tile precondition: must be uppercase letter
     Tile(char letter) {
