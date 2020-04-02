@@ -108,29 +108,29 @@ public class Scrabble {
     //method for a player(currPlayer) to place a word(currWord) on the board(myBoard)
     public void move(Board myBoard, Word currWord, Player currPlayer) {
         myBoard.place(currPlayer.getFrame(), currWord);
-        currPlayer.addScore(calculateScore(myBoard, currWord));//increasing score for player
+        currPlayer.addScore(calculateScore(myBoard, currWord, 0));//increasing score for player
         for (Word word : findPeripheral(currWord, 0))
         {
-            currPlayer.addScore(calculateScore(myBoard, word));
+            currPlayer.addScore(calculateScore(myBoard, word, 0));
         }
     }
 
     public void unmove(Board myBoard, Word currWord, Player currPlayer) {
-        currPlayer.addScore(-1*calculateMinusScore(myBoard, currWord));//increasing score for player
+        currPlayer.addScore(-1*calculateScore(myBoard, currWord, 1));//decreasing score for player
         for (Word word : findPeripheral(currWord, 1))
         {
-            currPlayer.addScore(-1*calculateScore(myBoard, word));
+            currPlayer.addScore(-1*calculateScore(myBoard, word, 1));
         }
         myBoard.unplace(currWord);
     }
 
     //method to calculate how much a placed word should be worth
-    public int calculateScore(Board board, Word word) {  //input from the user?
+    public int calculateScore(Board board, Word word, int turns) {  //input from the user?
         int tally = 0;
         int r = word.getFirstRow(), c = word.getFirstColumn();
         if (word.isHorizontal()) {
             for (int i = 0; i < word.getLength(); i++) {
-                if ((board.squares[r][c + i].getLetterMuliplier() == 2 || board.squares[r][c + i].getLetterMuliplier() == 3)&&board.squares[r][c].getTile().turnsOnBoard==0) {
+                if ((board.squares[r][c + i].getLetterMuliplier() == 2 || board.squares[r][c + i].getLetterMuliplier() == 3)&&board.squares[r][c+i].getTile().turnsOnBoard==turns) {
                     //letter value multiplied by square value is added to tally
                     tally += board.squares[r][c + i].getLetterMuliplier() * board.squares[r][c + i].getTile().getValue();
                 } else {
@@ -138,54 +138,20 @@ public class Scrabble {
                 }
             }
             for (int i = 0; i < word.getLength(); i++) {
-                if ((board.squares[r][c + i].getWordMultiplier() == 2 || board.squares[r][c + i].getWordMultiplier() == 3)&&board.squares[r][c].getTile().turnsOnBoard==0) {
+                if ((board.squares[r][c + i].getWordMultiplier() == 2 || board.squares[r][c + i].getWordMultiplier() == 3)&&board.squares[r][c+i].getTile().turnsOnBoard==turns) {
                     tally *= board.squares[r][c + i].getWordMultiplier();
                 }
             }
         } else { //if vertical
             for (int i = 0; i < word.getLength(); i++) {
-                if ((board.squares[r + i][c].getLetterMuliplier() == 2 || board.squares[r + i][c].getLetterMuliplier() == 3)&&board.squares[r][c].getTile().turnsOnBoard==0) {
+                if ((board.squares[r + i][c].getLetterMuliplier() == 2 || board.squares[r + i][c].getLetterMuliplier() == 3)&&board.squares[r+i][c].getTile().turnsOnBoard==turns) {
                     tally += board.squares[r + i][c].getLetterMuliplier() * board.squares[r + i][c].getTile().getValue();
                 } else {
                     tally += board.squares[r + i][c].getTile().getValue();
                 }
             }
             for (int i = 0; i < word.getLength(); i++) {
-                if ((board.squares[r + i][c].getWordMultiplier() == 2 || board.squares[r + i][c].getWordMultiplier() == 3)&&board.squares[r][c].getTile().turnsOnBoard==0) {
-                    tally *= board.squares[r + i][c].getWordMultiplier();
-                }
-            }
-        }
-        return tally;
-    }
-
-    public int calculateMinusScore(Board board, Word word) {  //input from the user?
-        int tally = 0;
-        int r = word.getFirstRow(), c = word.getFirstColumn();
-        if (word.isHorizontal()) {
-            for (int i = 0; i < word.getLength(); i++) {
-                if ((board.squares[r][c + i].getLetterMuliplier() == 2 || board.squares[r][c + i].getLetterMuliplier() == 3)&&board.squares[r][c].getTile().turnsOnBoard==1) {
-                    //letter value multiplied by square value is added to tally
-                    tally += board.squares[r][c + i].getLetterMuliplier() * board.squares[r][c + i].getTile().getValue();
-                } else {
-                    tally += board.squares[r][c + i].getTile().getValue();
-                }
-            }
-            for (int i = 0; i < word.getLength(); i++) {
-                if ((board.squares[r][c + i].getWordMultiplier() == 2 || board.squares[r][c + i].getWordMultiplier() == 3)&&board.squares[r][c].getTile().turnsOnBoard==1) {
-                    tally *= board.squares[r][c + i].getWordMultiplier();
-                }
-            }
-        } else { //if vertical
-            for (int i = 0; i < word.getLength(); i++) {
-                if ((board.squares[r + i][c].getLetterMuliplier() == 2 || board.squares[r + i][c].getLetterMuliplier() == 3)&&board.squares[r][c].getTile().turnsOnBoard==1) {
-                    tally += board.squares[r + i][c].getLetterMuliplier() * board.squares[r + i][c].getTile().getValue();
-                } else {
-                    tally += board.squares[r + i][c].getTile().getValue();
-                }
-            }
-            for (int i = 0; i < word.getLength(); i++) {
-                if ((board.squares[r + i][c].getWordMultiplier() == 2 || board.squares[r + i][c].getWordMultiplier() == 3)&&board.squares[r][c].getTile().turnsOnBoard==1) {
+                if ((board.squares[r + i][c].getWordMultiplier() == 2 || board.squares[r + i][c].getWordMultiplier() == 3)&&board.squares[r+i][c].getTile().turnsOnBoard==turns) {
                     tally *= board.squares[r + i][c].getWordMultiplier();
                 }
             }
@@ -244,6 +210,8 @@ public class Scrabble {
                             }
                             else if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied()) {
                                 s = s + Character.toString(Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].getTile().getLetter());
+                                if(newFirstRow==-1)
+                                {newFirstRow=word.getFirstRow();}
                             }
                             else if (Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].isOccupied()) {
                                 s = Character.toString(Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].getTile().getLetter()) + s;
@@ -255,9 +223,9 @@ public class Scrabble {
                         }
                         else if (!(word.getFirstRow() + j > 14)) {
                             if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied()) {
-                                if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied()) {
-                                    s = s + Character.toString(Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].getTile().getLetter());
-                                }
+                                s = s + Character.toString(Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].getTile().getLetter());
+                                if(newFirstRow==-1)
+                                {newFirstRow=word.getFirstRow();}
                             }
                             else{
                                 break;
@@ -300,6 +268,8 @@ public class Scrabble {
                             }
                             else if (Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].isOccupied()) {
                                 s = s + Character.toString(Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].getTile().getLetter());
+                                if(newFirstCol==-1)
+                                {newFirstCol=word.getFirstColumn();}
                             }
                             else if (Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() - j].isOccupied()) {
                                 s = Character.toString(Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() - j].getTile().getLetter()) + s;
@@ -312,6 +282,8 @@ public class Scrabble {
                         else if (!(word.getFirstColumn() + j > 14)) {
                             if (Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].isOccupied()) {
                                 s = s + Character.toString(Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].getTile().getLetter());
+                                if(newFirstCol==-1)
+                                {newFirstCol=word.getFirstColumn();}
                             }
                             else{
                                 break;
