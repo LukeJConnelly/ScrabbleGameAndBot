@@ -60,7 +60,7 @@ public class InputPopUp extends Application {
                 System.out.println("'<co-ordinate> <A/D for Across/Down> <Word>' to take your turn (be sure to enter a space after co-ordinate and A/D)");
                 System.out.println("Enjoy!");
             }
-            else if (input.matches("^EXCHANGE [A-Z]{1,7}$"))    // case exchange, close screen pass player input back to main to be interpreted as exchange
+            else if (input.matches("^EXCHANGE [A-Z_]{1,7}$"))    // case exchange, close screen pass player input back to main to be interpreted as exchange
             {
                 System.out.println("Exchanging Letters");
                 playerInput=input;

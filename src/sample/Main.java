@@ -99,7 +99,21 @@ public class Main extends Application {
                 // check peripheral words for legality
                 else if(isWord(prevWord.getLetters()))
                 {
-                    System.out.println("Challenge failed, "+prevWord.getLetters()+" is in the dictionary");
+                    boolean wordflag=true;
+                    for (Word word :game.findPeripheral(prevWord, 1))
+                    {
+                        if(!isWord(word.getLetters()))
+                        {
+                            wordflag=false;
+                            System.out.println("Challenge success, "+word.getLetters()+" is not in the dictionary");
+                            player=!player;
+                            game.unmove(myBoard, prevWord, player? player2:player1);
+                            Main.run();     //update board display
+                        }
+                    }
+                    if(wordflag) {
+                        System.out.println("Challenge failed, " + prevWord.getLetters() + " is in the dictionary");
+                    }
                 }
                 else
                 {
@@ -108,7 +122,7 @@ public class Main extends Application {
                     game.unmove(myBoard, prevWord, player? player2:player1);
                     Main.run();     //update board display
                 }
-            } else if (playerInput.playerInput.matches("^EXCHANGE [A-Z]{1,7}$")) {
+            } else if (playerInput.playerInput.matches("^EXCHANGE [A-Z_]{1,7}$")) {
                 game.exchange(playerInput, player, player1, player2, gamePool, turns);  //exchange is handled in scrabble
                 Main.run();     //update board display
             } else {    //player makes valid move

@@ -109,10 +109,18 @@ public class Scrabble {
     public void move(Board myBoard, Word currWord, Player currPlayer) {
         myBoard.place(currPlayer.getFrame(), currWord);
         currPlayer.addScore(calculateScore(myBoard, currWord));//increasing score for player
+        for (Word word : findPeripheral(currWord, 0))
+        {
+            currPlayer.addScore(calculateScore(myBoard, word));
+        }
     }
 
     public void unmove(Board myBoard, Word currWord, Player currPlayer) {
         currPlayer.addScore(-1*calculateMinusScore(myBoard, currWord));//increasing score for player
+        for (Word word : findPeripheral(currWord, 1))
+        {
+            currPlayer.addScore(-1*calculateScore(myBoard, word));
+        }
         myBoard.unplace(currWord);
     }
 
@@ -222,6 +230,124 @@ public class Scrabble {
         endScreen.displayText = s;  //displaying scoreline and winner
         Stage finalStage = new Stage();
         endScreen.start(finalStage);    //game is over
+    }
+
+    //function which returns peripheral words
+    public ArrayList<Word> findPeripheral (Word word, int turns)
+    {
+        ArrayList<Word> wordList = new ArrayList<Word>();
+        for(int i=0;i<word.getLength();i++)
+        {
+            if(word.isHorizontal()) {
+                if(Main.board.squares[word.getFirstRow()][word.getFirstColumn()+i].getTile().turnsOnBoard==turns){
+                    String s=Character.toString(Main.board.squares[word.getFirstRow()][word.getFirstColumn()+i].getTile().getLetter());
+                    int j=1, newFirstRow=-1;
+                    while(true) {
+                        if (!(word.getFirstRow() + j > 14 || word.getFirstRow() - j < 0)) {
+                            if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied() && Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].isOccupied()) {
+                                s = Character.toString(Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].getTile().getLetter())
+                                        + s +
+                                        Character.toString(Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].getTile().getLetter());
+                                newFirstRow=word.getFirstRow() - j;
+                            }
+                            else if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied()) {
+                                s = s + Character.toString(Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].getTile().getLetter());
+                            }
+                            else if (Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].isOccupied()) {
+                                s = Character.toString(Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].getTile().getLetter()) + s;
+                                newFirstRow=word.getFirstRow() - j;
+                            }
+                            else{
+                                break;
+                            }
+                        }
+                        else if (!(word.getFirstRow() + j > 14)) {
+                            if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied()) {
+                                if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied()) {
+                                    s = s + Character.toString(Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].getTile().getLetter());
+                                }
+                            }
+                            else{
+                                break;
+                            }
+                        }
+                        else if (!(word.getFirstRow() - j < 0)) {
+                            if (Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].isOccupied()) {
+                                if (Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].isOccupied()) {
+                                    s = Character.toString(Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].getTile().getLetter()) + s;
+                                    newFirstRow=word.getFirstRow() - j;
+                                }
+                            }
+                            else{
+                                break;
+                            }
+                        }
+                        else{
+                            break;
+                        }
+                        j++;
+                    }
+                    if(newFirstRow!=-1)
+                    {
+                        Word foundWord = new Word(newFirstRow,word.getFirstColumn() + i, false, s);
+                        wordList.add(foundWord);
+                    }
+                }
+            }
+            else {
+                if(Main.board.squares[word.getFirstRow()+i][word.getFirstColumn()].getTile().turnsOnBoard==turns){
+                    String s=Character.toString(Main.board.squares[word.getFirstRow()+i][word.getFirstColumn()].getTile().getLetter());
+                    int j=1, newFirstCol=-1;
+                    while(true) {
+                        if (!(word.getFirstColumn() + j > 14 || word.getFirstColumn() - j < 0)) {
+                            if (Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].isOccupied() && Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() - j].isOccupied()) {
+                                s = Character.toString(Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() - j].getTile().getLetter())
+                                        + s +
+                                        Character.toString(Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].getTile().getLetter());
+                                newFirstCol=word.getFirstColumn() - j;
+                            }
+                            else if (Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].isOccupied()) {
+                                s = s + Character.toString(Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].getTile().getLetter());
+                            }
+                            else if (Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() - j].isOccupied()) {
+                                s = Character.toString(Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() - j].getTile().getLetter()) + s;
+                                newFirstCol=word.getFirstColumn() - j;
+                            }
+                            else{
+                                break;
+                            }
+                        }
+                        else if (!(word.getFirstColumn() + j > 14)) {
+                            if (Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].isOccupied()) {
+                                s = s + Character.toString(Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() + j].getTile().getLetter());
+                            }
+                            else{
+                                break;
+                            }
+                        }
+                        else if (!(word.getFirstColumn() - j < 0)) {
+                                if (Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() - j].isOccupied()) {
+                                    s = Character.toString(Main.board.squares[word.getFirstRow() + i][word.getFirstColumn() - j].getTile().getLetter()) + s;
+                                    newFirstCol=word.getFirstColumn() - j;
+                                }
+                            else{
+                                break;
+                            }
+                        }
+                        else{
+                            break;
+                        }
+                        j++;
+                    }
+                    if(newFirstCol!=-1)
+                    {
+                        Word foundWord = new Word(word.getFirstRow() + i, newFirstCol, false, s);
+                        wordList.add(foundWord);
+                    }
+                }
+            }
+        }
+        return wordList;
     }
 }
 
