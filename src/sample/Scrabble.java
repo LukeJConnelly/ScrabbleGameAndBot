@@ -341,7 +341,7 @@ public class Scrabble {
                     }
                     if(newFirstCol!=-1)
                     {
-                        Word foundWord = new Word(word.getFirstRow() + i, newFirstCol, false, s);
+                        Word foundWord = new Word(word.getFirstRow() + i, newFirstCol, true, s);
                         wordList.add(foundWord);
                     }
                 }

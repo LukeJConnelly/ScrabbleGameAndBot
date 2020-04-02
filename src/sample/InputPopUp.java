@@ -28,7 +28,7 @@ public class InputPopUp extends Application {
         button.setOnAction(action -> {          // when player clicks make move:
             String input = "";
             input = textField.getText().toUpperCase().trim();       // we take their input and check it matches something acceptable
-            if(!input.matches("^[A-O][1-9] [AD] [A-Z_]{2,}$|^[A-O]1[0-5] [AD] [A-Z_]{2,}$|^QUIT$|^PASS$|^CHALLENGE$|^HELP$|^EXCHANGE [A-Z]{1,7}$"))
+            if(!input.matches("^[A-O][1-9] [AD] [A-Z_]{2,}$|^[A-O]1[0-5] [AD] [A-Z_]{2,}$|^QUIT$|^PASS$|^CHALLENGE$|^HELP$|^EXCHANGE [A-Z_]{1,7}$"))
             {
                 System.out.println("Input currently not recognized, please re-enter");  //if it doesnt they have to input again
             }

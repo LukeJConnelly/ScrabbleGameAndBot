@@ -109,6 +109,7 @@ public class Main extends Application {
                             player=!player;
                             game.unmove(myBoard, prevWord, player? player2:player1);
                             Main.run();     //update board display
+                            break;
                         }
                     }
                     if(wordflag) {
