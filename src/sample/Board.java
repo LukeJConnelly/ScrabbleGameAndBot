@@ -44,6 +44,7 @@ public class Board {
     public static final int WORD_LETTER_CLASH = 3;
     public static final int WORD_NO_LETTER_PLACED = 4;
     public static final int WORD_NO_CONNECTION = 5;
+    public static final int WORD_NOT_ALL_LETTERS_INPUTTED = 6;
 
     public Square[][] squares;
     private int checkCode;
@@ -152,6 +153,22 @@ public class Board {
             if (!foundConnection) {
                 isLegal = false;
                 checkCode = WORD_NO_CONNECTION;
+            }
+        }
+        if (isLegal && numPlays!=0)
+        {
+            if(word.isHorizontal())
+            {
+                if (squares[word.getFirstRow()][word.getFirstColumn()-1].isOccupied()||squares[word.getLastRow()][word.getLastColumn()-1].isOccupied()) {
+                    isLegal = false;
+                    checkCode = WORD_NOT_ALL_LETTERS_INPUTTED;
+                }
+            }
+            else{
+                if (squares[word.getFirstRow()-1][word.getFirstColumn()].isOccupied()||squares[word.getLastRow()+1][word.getLastColumn()].isOccupied()) {
+                    isLegal = false;
+                    checkCode = WORD_NOT_ALL_LETTERS_INPUTTED;
+                }
             }
         }
         return isLegal;
