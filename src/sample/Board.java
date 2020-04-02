@@ -169,9 +169,9 @@ public class Board {
         for (int i=0; i<word.getLength(); i++) {
             if (!squares[r][c].isOccupied()) {
                 char letter = word.getLetter(i);
-                Tile tile = frame.getTile(letter);
+                Tile tile = new Tile(letter);
                 squares[r][c].add(tile);
-                frame.remove(tile);
+                frame.remove(frame.getTile(letter));
             }
             if (word.isHorizontal()) {
                 c++;

@@ -203,14 +203,6 @@ public class Scrabble {
     }
     //method to establish and declare the winning player
     public void getWinner(Player player1, Player player2) throws Exception {
-        Scanner newScanner = new Scanner(System.in);
-        int n;
-        System.out.println("Please enter the penalties for " + player1.getName() + ":");
-        n = -1 * newScanner.nextInt(); //ensuring penalties are negative numbers
-        player1.addScore(n);//adding penalties to score
-        System.out.println("Please enter the penalties for " + player2.getName() + ":");
-        n = -1 * newScanner.nextInt();//ensuring penalties are negative numbers
-        player2.addScore(n);//adding penalties to score
         String s = "";
         //declaration of scoreline
         s += "Final scores:\n" + player1.getName() + " " + player1.getScore() + " - " + player2.getScore() + " " + player2.getName() + "\n";
