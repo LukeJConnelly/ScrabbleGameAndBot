@@ -226,7 +226,7 @@ public class Main extends Application {
                     addLetter(r, c, Main.board);
                     Main.board.squares[r][c].getTile().turnsOnBoard++;
                     if(Main.board.squares[r][c].getTile().isBlank()) {
-                        if (board.squares[r][c].getTile().getBlankRepresents() == '?') ;
+                        if (board.squares[r][c].getTile().getBlankRepresents() == '?')
                         {
                             System.out.println("Please enter the value for the blank at " + Character.toString((char) ('A' + c)) + Integer.toString(r + 1) + ":");
                             Scanner sc = new Scanner(System.in);
