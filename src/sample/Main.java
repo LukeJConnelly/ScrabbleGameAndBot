@@ -97,12 +97,12 @@ public class Main extends Application {
                     player=!player;
                 }
                 // check peripheral words for legality
-                else if(isWord(prevWord.getLetters()))
+                else if(isWord(replaceBlanks(prevWord.getLetters(), prevWord)))
                 {
                     boolean wordflag=true;
                     for (Word word :game.findPeripheral(prevWord, 1))
                     {
-                        if(!isWord(word.getLetters()))
+                        if(!isWord(replaceBlanks(word.getLetters(), word)))
                         {
                             wordflag=false;
                             System.out.println("Challenge success, "+word.getLetters()+" is not in the dictionary");
@@ -113,12 +113,12 @@ public class Main extends Application {
                         }
                     }
                     if(wordflag) {
-                        System.out.println("Challenge failed, " + prevWord.getLetters() + " is in the dictionary");
+                        System.out.println("Challenge failed, " + replaceBlanks(prevWord.getLetters(), prevWord) + " is in the dictionary");
                     }
                 }
                 else
                 {
-                    System.out.println("Challenge success, "+prevWord.getLetters()+" is not in the dictionary");
+                    System.out.println("Challenge success, "+replaceBlanks(prevWord.getLetters(), prevWord)+" is not in the dictionary");
                     player=!player;
                     game.unmove(myBoard, prevWord, player? player2:player1);
                     Main.run();     //update board display
@@ -174,7 +174,7 @@ public class Main extends Application {
         game.getWinner(player1, player2);   // game decides a winner
     }
 
-    public static void run() throws Exception {
+    public static void run() throws FileNotFoundException {
         int r, c;
         gridpane.getChildren().clear();     //get rid of whatevers there, in future letters could be removed by CHALLENGE
         for (r = 0; r < 16; r++) {
@@ -225,6 +225,20 @@ public class Main extends Application {
                 if (Main.board.squares[r][c].isOccupied()) {    //loop over again and if we
                     addLetter(r, c, Main.board);
                     Main.board.squares[r][c].getTile().turnsOnBoard++;
+                    if(Main.board.squares[r][c].getTile().isBlank()) {
+                        if (board.squares[r][c].getTile().getBlankRepresents() == '?') ;
+                        {
+                            System.out.println("Please enter the value for the blank at " + Character.toString((char) ('A' + c)) + Integer.toString(r + 1) + ":");
+                            Scanner sc = new Scanner(System.in);
+                            String charValue = "";
+                            charValue = sc.nextLine().toUpperCase();
+                            while (!charValue.trim().matches("[A-Z]{1}")) {
+                                System.out.println("Input currently not recognized, please re-enter");
+                                charValue = sc.nextLine().toUpperCase();
+                            }
+                            board.squares[r][c].getTile().setBlankRepresents(charValue.charAt(0));
+                        }
+                    }
                 }
             }
         }
@@ -234,21 +248,10 @@ public class Main extends Application {
         launch(args);
     }
 
-    public static void addLetter(int r, int c, Board myBoard) throws Exception {
-        FileInputStream input = null;
+    public static void addLetter(int r, int c, Board myBoard) throws FileNotFoundException {
+        FileInputStream input;
         if (myBoard.squares[r][c].getTile().isBlank()) {        //blank has a specific image
-//            input = new FileInputStream("Scrabble Tiles/0.png");
-            Stage s = new Stage();
-            if(myBoard.squares[r][c].getTile().getBlankRepresents() == 0){
-                BlankPopUp blankInput = new BlankPopUp();      //this takes in the players input as scanner cant run in conjunction with an application
-                blankInput.start(s);
-                while (blankInput.blankInput == 0) {         // if player closes input window we open it again for them
-                    blankInput.start(s); //here player enters what they want the blank to become
-                }
-                myBoard.squares[r][c].getTile().setBlankRepresents(blankInput.blankInput);
-                input = new FileInputStream("Scrabble Tiles/" + myBoard.squares[r][c].getTile().getBlankRepresents()+ ".png");
-                s.close();            
-            }
+            input = new FileInputStream("Scrabble Tiles/0.png");
         } else {        // just find the character.png - we made these ourselves in ms paint :)
             input = new FileInputStream("Scrabble Tiles/" + myBoard.squares[r][c].getTile().getLetter() + ".png");
         }
@@ -262,11 +265,34 @@ public class Main extends Application {
 
     public static boolean isWord(String word) throws FileNotFoundException {
         Scanner dictionary = new Scanner(new File("Scrabble Tiles/dictionary.txt"));
-        while (dictionary.hasNextLine()) {
+        while (dictionary.hasNextLine() != false) {
             if (word.equals(dictionary.nextLine())) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static String replaceBlanks(String s, Word word)
+    {
+        if (s.contains("_"))
+        {
+            for (int i=0;i<word.getLength();i++)
+            {
+                if(word.isHorizontal()){
+                    if(s.charAt(i)=='_')
+                    {
+                        s = s.substring(0, i) + Character.toString(Main.board.squares[word.getFirstRow()][word.getFirstColumn()+i].getTile().getBlankRepresents()) + s.substring(i + 1);
+                    }
+                }
+                else{
+                    if(s.charAt(i)=='_')
+                    {
+                        s = s.substring(0, i) + Character.toString(Main.board.squares[word.getFirstRow()+i][word.getFirstColumn()].getTile().getBlankRepresents()) + s.substring(i + 1);
+                    }
+                }
+            }
+        }
+        return s;
     }
 }

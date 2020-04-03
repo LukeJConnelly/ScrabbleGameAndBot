@@ -159,15 +159,33 @@ public class Board {
         {
             if(word.isHorizontal())
             {
-                if (squares[word.getFirstRow()][word.getFirstColumn()-1].isOccupied()||squares[word.getLastRow()][word.getLastColumn()-1].isOccupied()) {
-                    isLegal = false;
-                    checkCode = WORD_NOT_ALL_LETTERS_INPUTTED;
+                if(word.getFirstColumn()>0)
+                {
+                    if (squares[word.getFirstRow()][word.getFirstColumn()-1].isOccupied()) {
+                        isLegal = false;
+                        checkCode = WORD_NOT_ALL_LETTERS_INPUTTED;
+                    }
+                }
+                else if(word.getLastColumn()<14){
+                    if (squares[word.getLastRow()][word.getLastColumn()+1].isOccupied()) {
+                        isLegal = false;
+                        checkCode = WORD_NOT_ALL_LETTERS_INPUTTED;
+                    }
                 }
             }
             else{
-                if (squares[word.getFirstRow()-1][word.getFirstColumn()].isOccupied()||squares[word.getLastRow()+1][word.getLastColumn()].isOccupied()) {
-                    isLegal = false;
-                    checkCode = WORD_NOT_ALL_LETTERS_INPUTTED;
+                if(word.getFirstRow()>0)
+                {
+                    if (squares[word.getFirstRow()-1][word.getFirstColumn()].isOccupied()) {
+                        isLegal = false;
+                        checkCode = WORD_NOT_ALL_LETTERS_INPUTTED;
+                    }
+                }
+                else if(word.getLastRow()<14){
+                    if (squares[word.getLastRow()+1][word.getLastColumn()].isOccupied()) {
+                        isLegal = false;
+                        checkCode = WORD_NOT_ALL_LETTERS_INPUTTED;
+                    }
                 }
             }
         }

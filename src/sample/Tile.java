@@ -6,16 +6,15 @@ public class Tile {
 
     private boolean blank;
     private char letter;
+    private char blankRepresents='?';
     private int value;
     public int turnsOnBoard=0;
-    private char blankRepresents;
 
     // Tile precondition: must be uppercase letter
     Tile(char letter) {
         if (letter == '_') {
             this.blank = true;
             this.value = BLANK_VALUE;
-            this.blankRepresents = 0;
         } else {
             this.blank = false;
             this.letter = letter;
@@ -27,18 +26,11 @@ public class Tile {
         return blank;
     }
 
-    // getBlankRepresents precondition isBlank() = true;
-    public char getBlankRepresents() {
-        return blankRepresents;
-    }
-
-    // setBlankRepresents precondition isBlank() = true;
-    public void setBlankRepresents(char blankRepresents) {
-        this.blankRepresents = blankRepresents;
-    }
-
     // getLetter precondition isBlank() = false;
     public char getLetter() {
+        if(this.isBlank()){
+            return '_';
+        }
         return letter;
     }
 
@@ -47,6 +39,9 @@ public class Tile {
         return value;
     }
 
+    public void setBlankRepresents(char c){this.blankRepresents=c;}
+
+    public char getBlankRepresents(){return blankRepresents;}
     // equals is used by the contains method to find matching objects in an ArrayList
     @Override
     public boolean equals(Object object) {
