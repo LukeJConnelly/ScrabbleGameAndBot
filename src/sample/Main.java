@@ -174,7 +174,7 @@ public class Main extends Application {
         game.getWinner(player1, player2);   // game decides a winner
     }
 
-    public static void run() throws FileNotFoundException {
+    public static void run() throws Exception {
         int r, c;
         gridpane.getChildren().clear();     //get rid of whatevers there, in future letters could be removed by CHALLENGE
         for (r = 0; r < 16; r++) {
@@ -234,10 +234,21 @@ public class Main extends Application {
         launch(args);
     }
 
-    public static void addLetter(int r, int c, Board myBoard) throws FileNotFoundException {
-        FileInputStream input;
+    public static void addLetter(int r, int c, Board myBoard) throws Exception {
+        FileInputStream input = null;
         if (myBoard.squares[r][c].getTile().isBlank()) {        //blank has a specific image
-            input = new FileInputStream("Scrabble Tiles/0.png");
+//            input = new FileInputStream("Scrabble Tiles/0.png");
+            Stage s = new Stage();
+            if(myBoard.squares[r][c].getTile().getBlankRepresents() == 0){
+                BlankPopUp blankInput = new BlankPopUp();      //this takes in the players input as scanner cant run in conjunction with an application
+                blankInput.start(s);
+                while (blankInput.blankInput == 0) {         // if player closes input window we open it again for them
+                    blankInput.start(s); //here player enters what they want the blank to become
+                }
+                myBoard.squares[r][c].getTile().setBlankRepresents(blankInput.blankInput);
+                input = new FileInputStream("Scrabble Tiles/" + myBoard.squares[r][c].getTile().getBlankRepresents()+ ".png");
+                s.close();            
+            }
         } else {        // just find the character.png - we made these ourselves in ms paint :)
             input = new FileInputStream("Scrabble Tiles/" + myBoard.squares[r][c].getTile().getLetter() + ".png");
         }
@@ -251,7 +262,7 @@ public class Main extends Application {
 
     public static boolean isWord(String word) throws FileNotFoundException {
         Scanner dictionary = new Scanner(new File("Scrabble Tiles/dictionary.txt"));
-        while (dictionary.hasNextLine() != false) {
+        while (dictionary.hasNextLine()) {
             if (word.equals(dictionary.nextLine())) {
                 return true;
             }

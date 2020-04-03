@@ -8,12 +8,14 @@ public class Tile {
     private char letter;
     private int value;
     public int turnsOnBoard=0;
+    private char blankRepresents;
 
     // Tile precondition: must be uppercase letter
     Tile(char letter) {
         if (letter == '_') {
             this.blank = true;
             this.value = BLANK_VALUE;
+            this.blankRepresents = 0;
         } else {
             this.blank = false;
             this.letter = letter;
@@ -23,6 +25,16 @@ public class Tile {
 
     public boolean isBlank() {
         return blank;
+    }
+
+    // getBlankRepresents precondition isBlank() = true;
+    public char getBlankRepresents() {
+        return blankRepresents;
+    }
+
+    // setBlankRepresents precondition isBlank() = true;
+    public void setBlankRepresents(char blankRepresents) {
+        this.blankRepresents = blankRepresents;
     }
 
     // getLetter precondition isBlank() = false;
