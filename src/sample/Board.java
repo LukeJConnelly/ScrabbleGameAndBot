@@ -45,6 +45,8 @@ public class Board {
     public static final int WORD_NO_LETTER_PLACED = 4;
     public static final int WORD_NO_CONNECTION = 5;
     public static final int WORD_NOT_ALL_LETTERS_INPUTTED = 6;
+    // i added this for if someone tries to add a horizontal word next to a letter,
+    // or a vertical word above or below a letter - it would cause problems for the peripheral words
 
     public Square[][] squares;
     private int checkCode;
@@ -217,11 +219,11 @@ public class Board {
         numPlays++;
     }
 
-    public void unplace(Word word) {
+    public void unplace(Word word) {    //essentially the exact opposite of place, not much changed
         int r = word.getFirstRow();
         int c = word.getFirstColumn();
         for (int i=0; i<word.getLength(); i++) {
-            if(squares[r][c].getTile().turnsOnBoard==1) {
+            if(squares[r][c].getTile().turnsOnBoard==1) {   //word was placed last turn
                 squares[r][c].remove();
             }
             if (word.isHorizontal()) {

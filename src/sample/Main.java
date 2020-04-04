@@ -70,7 +70,7 @@ public class Main extends Application {
         boolean player = false;   //Player 1 goes first if false, player 2 goes first if true
         game.setup(player1, player2, gamePool, decisionPool);           // takes in names and decides player order
         int turns = 0;
-        Word prevWord=null;
+        Word prevWord=null; //used for challenges
         while (!game.end(player1, player2, turns) && !quit) {           // if the game isnt over and the player hasnt quit we play
             System.out.println();
             if (player) {       //we use a boolean player and if statements to differentiate between turns
@@ -91,15 +91,15 @@ public class Main extends Application {
             } else if (playerInput.playerInput == "P") {        //PASS
                 turns++;    //just let the turn go, but keep a count of how many turns in a row have been passed - 6 ends game
             } else if (playerInput.playerInput == "C") {        //CHALLENGE
-                if(myBoard.numPlays==0)
+                if(myBoard.numPlays==0) //shouldnt allow challenge without a word played
                 {
                     System.out.println("There has not been a word played yet! Please make another move");
-                    player=!player;
+                    player=!player; //negate flipping of turns
                 }
                 // check peripheral words for legality
-                else if(isWord(replaceBlanks(prevWord.getLetters(), prevWord)))
+                else if(isWord(replaceBlanks(prevWord.getLetters(), prevWord))) //challenge the previous word using the dictionary
                 {
-                    boolean wordflag=true;
+                    boolean wordflag=true;  //will equival false if any peripheral words fail
                     for (Word word :game.findPeripheral(prevWord, 1))
                     {
                         if(!isWord(replaceBlanks(word.getLetters(), word)))
@@ -107,7 +107,7 @@ public class Main extends Application {
                             wordflag=false;
                             System.out.println("Challenge success, "+word.getLetters()+" is not in the dictionary");
                             player=!player;
-                            game.unmove(myBoard, prevWord, player? player2:player1);
+                            game.unmove(myBoard, prevWord, player? player2:player1);    //remove the previous turn
                             Main.run();     //update board display
                             break;
                         }
@@ -154,7 +154,7 @@ public class Main extends Application {
                     if (myBoard.isLegal(player1.getFrame(), currWord)) {
                         game.move(myBoard, currWord, player1);
                         turns = 0;
-                        prevWord = currWord;
+                        prevWord = currWord;    //saved for challenges
                         Main.run();     //update board display
                     }
                     else{
@@ -224,19 +224,19 @@ public class Main extends Application {
             for (c = 0; c < 15; c++) {
                 if (Main.board.squares[r][c].isOccupied()) {    //loop over again and if we
                     addLetter(r, c, Main.board);
-                    Main.board.squares[r][c].getTile().turnsOnBoard++;
+                    Main.board.squares[r][c].getTile().turnsOnBoard++;      //used for scoring checks
                     if(Main.board.squares[r][c].getTile().isBlank()) {
-                        if (board.squares[r][c].getTile().getBlankRepresents() == '?')
+                        if (board.squares[r][c].getTile().getBlankRepresents() == '?')      //ie. the value has not been changed yet
                         {
                             System.out.println("Please enter the value for the blank at " + Character.toString((char) ('A' + c)) + Integer.toString(r + 1) + ":");
                             Scanner sc = new Scanner(System.in);
                             String charValue = "";
                             charValue = sc.nextLine().toUpperCase();
-                            while (!charValue.trim().matches("[A-Z]{1}")) {
+                            while (!charValue.trim().matches("[A-Z]{1}")) {     //take in a single char
                                 System.out.println("Input currently not recognized, please re-enter");
                                 charValue = sc.nextLine().toUpperCase();
                             }
-                            board.squares[r][c].getTile().setBlankRepresents(charValue.charAt(0));
+                            board.squares[r][c].getTile().setBlankRepresents(charValue.charAt(0));  //set the blank represents value to what the user specifies for the rest of the game
                         }
                     }
                 }
@@ -265,7 +265,7 @@ public class Main extends Application {
 
     public static boolean isWord(String word) throws FileNotFoundException {
         Scanner dictionary = new Scanner(new File("Scrabble Tiles/dictionary.txt"));
-        while (dictionary.hasNextLine() != false) {
+        while (dictionary.hasNextLine() != false) {     //scanning linearly, however i've found this never takes longer than a second, so I feel thats "reasonable"
             if (word.equals(dictionary.nextLine())) {
                 return true;
             }
@@ -273,7 +273,7 @@ public class Main extends Application {
         return false;
     }
 
-    public static String replaceBlanks(String s, Word word)
+    public static String replaceBlanks(String s, Word word) //function used to replace _'s  in a words string value
     {
         if (s.contains("_"))
         {
@@ -282,6 +282,7 @@ public class Main extends Application {
                 if(word.isHorizontal()){
                     if(s.charAt(i)=='_')
                     {
+                        //go to the position of the blank on the board and get the blankRepresents value, replacing the _ with it in the string
                         s = s.substring(0, i) + Character.toString(Main.board.squares[word.getFirstRow()][word.getFirstColumn()+i].getTile().getBlankRepresents()) + s.substring(i + 1);
                     }
                 }

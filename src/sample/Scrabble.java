@@ -109,7 +109,7 @@ public class Scrabble {
     public void move(Board myBoard, Word currWord, Player currPlayer) {
         myBoard.place(currPlayer.getFrame(), currWord);
         currPlayer.addScore(calculateScore(myBoard, currWord, 0));//increasing score for player
-        for (Word word : findPeripheral(currWord, 0))
+        for (Word word : findPeripheral(currWord, 0))   //calculate score for words touching the main word
         {
             currPlayer.addScore(calculateScore(myBoard, word, 0));
         }
@@ -117,7 +117,7 @@ public class Scrabble {
 
     public void unmove(Board myBoard, Word currWord, Player currPlayer) {
         currPlayer.addScore(-1*calculateScore(myBoard, currWord, 1));//decreasing score for player
-        for (Word word : findPeripheral(currWord, 1))
+        for (Word word : findPeripheral(currWord, 1))   //also need to remove scores for periperal words
         {
             currPlayer.addScore(-1*calculateScore(myBoard, word, 1));
         }
@@ -125,7 +125,7 @@ public class Scrabble {
     }
 
     //method to calculate how much a placed word should be worth
-    public int calculateScore(Board board, Word word, int turns) {  //input from the user?
+    public int calculateScore(Board board, Word word, int turns) {  //turns is used to differentiate between taking score for a challenge and adding score for a placement
         int tally = 0;
         int r = word.getFirstRow(), c = word.getFirstColumn();
         if (word.isHorizontal()) {
@@ -191,37 +191,41 @@ public class Scrabble {
     }
 
     //function which returns peripheral words
-    public ArrayList<Word> findPeripheral (Word word, int turns)
+    public ArrayList<Word> findPeripheral (Word word, int turns)    //turns used to differentiate between challenges and placements
     {
-        ArrayList<Word> wordList = new ArrayList<Word>();
-        for(int i=0;i<word.getLength();i++)
+        ArrayList<Word> wordList = new ArrayList<Word>();   //the list of words we find that will be returned
+        for(int i=0;i<word.getLength();i++) //for each letter in the word we check above and below or left and right for connecting words
         {
             if(word.isHorizontal()) {
                 if(Main.board.squares[word.getFirstRow()][word.getFirstColumn()+i].getTile().turnsOnBoard==turns){
                     String s=Character.toString(Main.board.squares[word.getFirstRow()][word.getFirstColumn()+i].getTile().getLetter());
-                    int j=1, newFirstRow=-1;
-                    while(true) {
-                        if (!(word.getFirstRow() + j > 14 || word.getFirstRow() - j < 0)) {
+                    int j=1, newFirstRow=-1;    //new first row used for a peripheral word found
+                    while(true) {   //we'll use breaks to get out of this
+                        if (!(word.getFirstRow() + j > 14 || word.getFirstRow() - j < 0)) {//ensuring we dont throw an arrayindex out of bounds exception
                             if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied() && Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].isOccupied()) {
+                                //if both above and below the letter are occupied we want to add both the char above and below to the string
                                 s = Character.toString(Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].getTile().getLetter())
                                         + s +
                                         Character.toString(Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].getTile().getLetter());
-                                newFirstRow=word.getFirstRow() - j;
+                                newFirstRow=word.getFirstRow() - j; //we've found one above, so the first row must be changed
                             }
                             else if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied()) {
+                                //if below the letter is occupied we want to addthe char below to the string
                                 s = s + Character.toString(Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].getTile().getLetter());
-                                if(newFirstRow==-1)
+                                if(newFirstRow==-1)//making sure newFirstRow is updated for words that run below the letter
                                 {newFirstRow=word.getFirstRow();}
                             }
                             else if (Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].isOccupied()) {
+                                //if above the letter is occupied we want to add the char above to the string
                                 s = Character.toString(Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].getTile().getLetter()) + s;
-                                newFirstRow=word.getFirstRow() - j;
+                                newFirstRow=word.getFirstRow() - j;//update first row
                             }
                             else{
+                                //if we find nothing the word is over/never began
                                 break;
                             }
                         }
-                        else if (!(word.getFirstRow() + j > 14)) {
+                        else if (!(word.getFirstRow() + j > 14)) {  //the same checks but altered for if the word is on the final row
                             if (Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].isOccupied()) {
                                 s = s + Character.toString(Main.board.squares[word.getFirstRow() + j][word.getFirstColumn() + i].getTile().getLetter());
                                 if(newFirstRow==-1)
@@ -231,7 +235,7 @@ public class Scrabble {
                                 break;
                             }
                         }
-                        else if (!(word.getFirstRow() - j < 0)) {
+                        else if (!(word.getFirstRow() - j < 0)) {   //same checks but altered for if the word is on the first row
                             if (Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].isOccupied()) {
                                 if (Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].isOccupied()) {
                                     s = Character.toString(Main.board.squares[word.getFirstRow() - j][word.getFirstColumn() + i].getTile().getLetter()) + s;
@@ -247,14 +251,14 @@ public class Scrabble {
                         }
                         j++;
                     }
-                    if(newFirstRow!=-1)
+                    if(newFirstRow!=-1) //if newFirstRow has been changed - ie. letters were found above or below the letter
                     {
                         Word foundWord = new Word(newFirstRow,word.getFirstColumn() + i, false, s);
-                        wordList.add(foundWord);
+                        wordList.add(foundWord);    //construct a new word and add it to the list
                     }
                 }
             }
-            else {
+            else {      //exact same checks performed but flipped for vertical words
                 if(Main.board.squares[word.getFirstRow()+i][word.getFirstColumn()].getTile().turnsOnBoard==turns){
                     String s=Character.toString(Main.board.squares[word.getFirstRow()+i][word.getFirstColumn()].getTile().getLetter());
                     int j=1, newFirstCol=-1;
@@ -311,7 +315,7 @@ public class Scrabble {
                 }
             }
         }
-        return wordList;
+        return wordList;    //return all the words we've found
     }
 }
 
