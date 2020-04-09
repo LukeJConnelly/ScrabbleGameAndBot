@@ -60,7 +60,12 @@ public class Bot1 implements BotAPI {
         String command = "";
         if (turnCount==0) {
             command = "NAME Bot1";
-        } else if (board.isFirstPlay()) {
+        }
+        //useful for testing blank related code
+//        else if (!me.getFrameAsString().contains("_")) {
+//            command = "X "+ me.getFrameAsString().replaceAll("[^A-Z_]", "");
+//        }
+        else if (board.isFirstPlay()) {
             command = makeFirstWord(me.getFrameAsString());
         } else {
             for (int i=0;i<15;i++)
@@ -96,70 +101,29 @@ public class Bot1 implements BotAPI {
             for (String combination : combinations) {
                 if(combination.contains("_"))
                 {
-                    for(int j=0;j<combination.length();j++)
-                    {
-                        if(combination.charAt(j)=='_')
+                    ArrayList<String> combinationsWithoutBlanks = new ArrayList<String>();
+                    addStringsWithoutBlanks(combination, combinationsWithoutBlanks);
+                    for (String combinationWithoutBlanks : combinationsWithoutBlanks) {
+                        Word word = new Word(7,i,true,combinationWithoutBlanks);
+                        found.add(word);
+                        if (dictionary.areWords(found))
                         {
-                            for(int k=0;k<26;k++)
+                            Word wordWithBlanks = new Word(7,i,true,combination);
+                            if((getFirstWordPoints(wordWithBlanks)>maxScore||(getFirstWordPoints(wordWithBlanks)==maxScore&&wordWithBlanks.length()<bestWord.length()))&&i+wordWithBlanks.length()>6)
+//if word is a word, beats current best score, reaches double word we have a new best word
                             {
-                                String tempCombination = combination.substring(0, j) + Character.toString('A'+k) + combination.substring(j + 1);
-                                if(combination.contains("_"))
+                                bestWord = wordWithBlanks;
+                                maxScore = getFirstWordPoints(word);
+                                blanks=" ";
+                                for (int o=0;o<combination.length();o++)
                                 {
-                                    for(int l=0;l<tempCombination.length();l++)
-                                    {
-                                        if(combination.charAt(l)=='_')
-                                        {
-                                            for(int m=0;m<26;m++)
-                                            {
-                                                tempCombination = combination.substring(0, l) + Character.toString('A'+m) + combination.substring(l + 1);
-                                                Word word = new Word(7,i,true,tempCombination);
-                                                found.add(word);
-                                                if (dictionary.areWords(found))
-                                                {
-                                                    Word wordWithBlanks = new Word(7,i,true,combination);
-                                                    if((getFirstWordPoints(wordWithBlanks)>maxScore||(getFirstWordPoints(wordWithBlanks)==maxScore&&wordWithBlanks.length()<bestWord.length()))&&i+wordWithBlanks.length()>6)
-//if word is a word, beats current best score, reaches double word we have a new best word
-                                                    {
-                                                        bestWord = wordWithBlanks;
-                                                        maxScore = getFirstWordPoints(word);
-                                                        blanks=" ";
-                                                        for (int o=0;o<combination.length();o++)
-                                                        {
-                                                            if(combination.charAt(o)=='_') {
-                                                                blanks+=tempCombination.charAt(o);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                found.remove(word);
-                                            }
-                                        }
+                                    if(combination.charAt(o)=='_') {
+                                        blanks+=combinationWithoutBlanks.charAt(o);
                                     }
-                                }
-                                else{
-                                    Word word = new Word(7,i,true,tempCombination);
-                                    found.add(word);
-                                    if (dictionary.areWords(found))
-                                    {
-                                        Word wordWithBlanks = new Word(7,i,true,combination);
-                                        if((getFirstWordPoints(wordWithBlanks)>maxScore||(getFirstWordPoints(wordWithBlanks)==maxScore&&wordWithBlanks.length()<bestWord.length()))&&i+wordWithBlanks.length()>6)
-//if word is a word, beats current best score, reaches double word we have a new best word
-                                        {
-                                            bestWord = wordWithBlanks;
-                                            maxScore = getFirstWordPoints(word);
-                                            blanks=" ";
-                                            for (int o=0;o<combination.length();o++)
-                                            {
-                                                if(combination.charAt(o)=='_') {
-                                                    blanks+=tempCombination.charAt(o);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    found.remove(word);
                                 }
                             }
                         }
+                        found.remove(word);
                     }
                 }
                 else{
@@ -216,7 +180,7 @@ public class Bot1 implements BotAPI {
     static void permute(String prefix, String s, ArrayList<String> allCombinations) {
         int N = s.length();
 
-        if (N == 0 && prefix.length() > 1 && !(allCombinations.contains(prefix)))
+        if (N == 0 && prefix.length() > 1)
             allCombinations.add(prefix);
 
         for (int i = 0; i < N; i++) {
@@ -249,6 +213,22 @@ public class Bot1 implements BotAPI {
             wordValue+=50;
         }
         return wordValue * wordMultipler;
+    }
+
+    private void addStringsWithoutBlanks(String s, ArrayList<String> al)
+    {
+        for(int i=0;i<s.length();i++) {
+            if (s.charAt(i) == '_') {
+                for (int j = 0; j < 26; j++) {
+                    s = s.substring(0, i) + Character.toString('A' + j) + s.substring(i + 1);
+                    if (s.substring(i + 1).contains("_")) {
+                        addStringsWithoutBlanks(s, al);
+                    } else {
+                        al.add(s);
+                    }
+                }
+            }
+        }
     }
 
     //might be an idea to write a method that determines the best thing to exchange
