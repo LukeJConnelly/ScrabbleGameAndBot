@@ -208,19 +208,21 @@ public class Bot1 implements BotAPI {
 
         permute("", s, allCombinations);
 
-        for (int i = 0 ; i < N ; i++)
-            combo(prefix + s.charAt(i), s.substring(i+1), allCombinations);
+        for (int i = 0 ; i < N ; i++) {
+            combo(prefix + s.charAt(i), s.substring(i + 1), allCombinations);
+        }
     }
 
-    static void permute(String prefix, String s, ArrayList<String> allCombinations)
-    {
+    static void permute(String prefix, String s, ArrayList<String> allCombinations) {
         int N = s.length();
 
-        if (N == 0)
+        if (N == 0 && prefix.length() > 1 && !(allCombinations.contains(prefix)))
             allCombinations.add(prefix);
 
-        for (int i = 0 ; i < N ; i++)
-            permute(prefix + s.charAt(i), s.substring(0, i) + s.substring(i+1, N), allCombinations);
+        for (int i = 0; i < N; i++) {
+            permute(prefix + s.charAt(i), s.substring(0, i) + s.substring(i + 1, N), allCombinations);
+            combo(prefix + s.charAt(i), s.substring(0, i) + s.substring(i+1, N), allCombinations);
+        }
     }
 
     private int getFirstWordPoints(Word word) {
