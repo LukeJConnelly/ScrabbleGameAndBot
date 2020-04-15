@@ -14,38 +14,6 @@ public class Bot1 implements BotAPI {
     private UserInterfaceAPI info;
     private DictionaryAPI dictionary;
     private int turnCount = 0;
-    private static final int[][] LETTER_MULTIPLIER =
-            { 	{1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1},
-                    {2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1},
-                    {1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1},
-                    {1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1},
-                    {1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1},
-                    {1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 3, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2},
-                    {1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} };
-    private static final int[][] WORD_MULTIPLIER =
-            {   {3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3},
-                    {1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1},
-                    {1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1},
-                    {1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1},
-                    {1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1},
-                    {1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1},
-                    {1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1},
-                    {1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1},
-                    {3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3} };
 
     Bot1(PlayerAPI me, OpponentAPI opponent, BoardAPI board, UserInterfaceAPI ui, DictionaryAPI dictionary) {
         this.me = me;
@@ -68,21 +36,7 @@ public class Bot1 implements BotAPI {
         else if (board.isFirstPlay()) {
             command = makeFirstWord(me.getFrameAsString());
         } else {
-            for (int i=0;i<15;i++)
-            {
-                for (int j=0;j<15;j++)
-                {
-//                    Square currSquare = board.getSquareCopy(i,j);
-//                    if(currSquare.isOccupied())
-//                    {
-//                        //try to make word from that square
-//                    }
-//                    else if(hasPeripherals(currSquare,i,j))
-//                    {
-//                        //find max word next to peripheral squares
-//                    }
-                }
-            }
+            //implement gaddag format
         }
         turnCount++;
         return command;
@@ -197,11 +151,8 @@ public class Bot1 implements BotAPI {
         for (int i = 0; i<word.length(); i++) {
             Tile tile = new Tile(word.getLetter(i));
             int letterValue = tile.getValue();
-            //error in getSquareCopy, cant use this
-            //wordValue = wordValue + letterValue * board.getSquareCopy(r, c).getLetterMuliplier();
-            //wordMultipler = wordMultipler * board.getSquareCopy(r, c).getWordMultiplier();
-            wordValue = wordValue + letterValue * LETTER_MULTIPLIER[r][c];
-            wordMultipler = wordMultipler * WORD_MULTIPLIER[r][c];
+            wordValue = wordValue + letterValue * board.getSquareCopy(r, c).getLetterMuliplier();
+            wordMultipler = wordMultipler * board.getSquareCopy(r, c).getWordMultiplier();
             if (word.isHorizontal()) {
                 c++;
             } else {
@@ -234,4 +185,79 @@ public class Bot1 implements BotAPI {
     //might be an idea to write a method that determines the best thing to exchange
     //for example AEILNRST are considered to be the most useful letters
     //and q's and z's will score lots of points
+
+    private class GADDAG {
+        private String prefix;
+        private String suffix;
+        GADDAG(String pre, String suf){
+            this.prefix = reverse(pre);
+            this.suffix = suf;
+        }
+        GADDAG(BoardAPI board, Tile start, int row, int col, boolean isHorizontal){
+            //produces a gaddag of a line starting at a tile on that line where ? represents empty squares
+            this.prefix = "";
+            this.suffix = ""+start.getLetter();
+            int ctemp=col, rtemp=row;
+            if(isHorizontal){
+                while (ctemp<15) {
+                    Square temp = board.getSquareCopy(row, ctemp);
+                    if(temp.isOccupied()){
+                        suffix=suffix+temp.getTile().getLetter();
+                    }
+                    else{
+                        suffix+="?";
+                    }
+                    ctemp++;
+                }
+                ctemp=col-1;
+                while (ctemp>-1) {
+                    Square temp = board.getSquareCopy(row, ctemp);
+                    if(temp.isOccupied()){
+                        prefix=prefix+temp.getTile().getLetter();
+                    }
+                    else{
+                        prefix+="?";
+                    }
+                    ctemp--;
+                }
+            }
+            else
+            {
+                while (rtemp<15) {
+                    Square temp = board.getSquareCopy(rtemp, col);
+                    if(temp.isOccupied()){
+                        suffix=suffix+temp.getTile().getLetter();
+                    }
+                    else{
+                        suffix+="?";
+                    }
+                    rtemp++;
+                }
+                rtemp=row-1;
+                while (rtemp>-1) {
+                    Square temp = board.getSquareCopy(rtemp, col);
+                    if(temp.isOccupied()){
+                        prefix=prefix+temp.getTile().getLetter();
+                    }
+                    else{
+                        prefix+="?";
+                    }
+                    rtemp--;
+                }
+            }
+        }
+
+        public String reverse(String s) {
+            String c = "";
+            for(int i=s.length()-1; i>=0; i--)
+            {
+                c+=s.charAt(i);
+            }
+            return c;
+        }
+
+        public String getWordAsString(){
+            return reverse(prefix)+suffix;
+        }
+    }
 }
