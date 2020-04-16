@@ -303,58 +303,40 @@ public class Bot1 implements BotAPI {
         return isHook;
     }
 
-    public void generateGaddags(int r, int c, HashSet<GADDAG> al){
+    public void generateGaddags(int r, int c, HashSet<GADDAG> hs){
         GADDAG acrossMaster = new GADDAG(board, r, c, true);
         GADDAG downMaster = new GADDAG(board, r, c, false);
-
-        //across gaddags
-        int numEmptyPrefix = acrossMaster.prefix.length() - acrossMaster.prefix.replace("?","").length();
-        int numEmptySuffix = acrossMaster.suffix.length() - acrossMaster.suffix.replace("?","").length();
-        //generate just suffix'
-        for(int i = numEmptySuffix; i>0; i--)
-        {
-            String pre="", suf="";
-            int j=0;
-            while(suf.length()-suf.replace("?", "").length()<numEmptySuffix)
-            {
-                suf+=acrossMaster.suffix.charAt(j);
-            }
-            if(!(suf.length()==1))
-            {
-                al.add(new GADDAG(pre, suf, acrossMaster.start.row, acrossMaster.start.col, true));
-            }
-        }
-        //generate just prefix
-        for(int i = numEmptyPrefix; i>0; i--)
-        {
-            String pre="", suf=board.getSquareCopy(acrossMaster.start.row, acrossMaster.start.col).isOccupied() ? ""+ board.getSquareCopy(acrossMaster.start.row, acrossMaster.start.col).getTile().getLetter() : "?";
-            int j=0;
-            while(pre.length()-pre.replace("?", "").length()<numEmptyPrefix)
-            {
-                pre+=acrossMaster.prefix.charAt(acrossMaster.prefix.length()-1-j);
-            }
-            al.add(new GADDAG(pre, suf, acrossMaster.start.row, acrossMaster.start.col, true));
-        }
-        //generate a mix of both
-        for(int i = numEmptySuffix; i>=0; i--)
-        {
-            String pre="", suf="";
-            int k=0;
-            while(suf.length()-suf.replace("?", "").length()<i)
-            {
-                suf+=acrossMaster.suffix.charAt(k);
-                k++;
-            }
-            for (int j = i; j<numEmptyPrefix; j++)
-            {
-                int l=0;
-                while(pre.length()-pre.replace("?", "").length()<j-i)
-                {
-                    pre+=acrossMaster.prefix.charAt(acrossMaster.prefix.length()-1-l);
-                    l++;
+        ArrayList<String> suffixes = new ArrayList<>();
+        ArrayList<String> prefixes = new ArrayList<>();
+        String suf= board.getSquareCopy(acrossMaster.start.row,acrossMaster.start.row).isOccupied() ? ""+board.getSquareCopy(acrossMaster.start.row,acrossMaster.start.row).getTile().getLetter():"?";
+        for(int i=0; i<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&i<acrossMaster.suffix.length()-2; i=i){
+            String found = suf;
+            if(acrossMaster.suffix.charAt(i+1)=='?'){
+                if(found.length()>1){
+                    suffixes.add(found);
                 }
+                i++;
             }
-            al.add(new GADDAG(pre, suf, acrossMaster.start.row, acrossMaster.start.col, true));
+            suf+=acrossMaster.suffix.charAt(i+1);
+        }
+        for(int i=0; i<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&i<acrossMaster.prefix.length()-1; i=i){
+            String pre = "";
+            if(acrossMaster.prefix.charAt(acrossMaster.prefix.length()-1-i)=='?'){
+                prefixes.add(pre);
+                i++;
+            }
+            pre+=acrossMaster.prefix.charAt(acrossMaster.prefix.length()-1-i);
+        }
+        for(String s : suffixes){
+            hs.add(new GADDAG("", s, r, c, true));
+            for(String p : prefixes)
+            {
+                hs.add(new GADDAG(p, s, r, c, true));
+            }
+        }
+        for(String p : prefixes)
+        {
+            hs.add(new GADDAG(p, suf, r, c, true));
         }
     }
 
