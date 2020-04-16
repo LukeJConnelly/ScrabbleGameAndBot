@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Bot1 implements BotAPI {
 
@@ -36,7 +37,7 @@ public class Bot1 implements BotAPI {
         else if (board.isFirstPlay()) {
             command = makeFirstWord(me.getFrameAsString());
         } else {
-            //implement gaddag format
+            command = makeWord(me.getFrameAsString());
         }
         turnCount++;
         return command;
@@ -107,6 +108,45 @@ public class Bot1 implements BotAPI {
         return command;
     }
 
+    public String makeWord(String myFrame)
+    {
+        myFrame = myFrame.replaceAll("[^A-Z_]", "");//turning frame into string of 7 letters
+        String command = "X "+myFrame;//preparing an exchange command if we find no words
+        Word bestWord = new Word(0,0,false,"neverever");//is never used, just a placeholder
+        int maxScore=0;
+        String blanks="";
+        ArrayList<String> combinations = getCombinations(myFrame);    //find every combination of the letters
+        HashSet<IntPair> hooks = new HashSet<IntPair> ();
+        for (int r=0; r<15; r++)  {
+            for (int c=0; c<15; c++)   {
+                if (isHook(r, c))
+                {
+                    hooks.add(new IntPair(r,c));
+                }
+            }
+        }
+        HashSet<GADDAG> gaddags = new HashSet<GADDAG>();
+        for(IntPair i : hooks)
+        {
+            generateGaddags(i.row, i.col, gaddags); //currently only finds across
+        }
+        for(GADDAG g : gaddags)
+        {
+            //permute with frame
+            //check is word (and check peripherals)
+            //score words (and check peripherals)
+            //check if is Best
+        }
+        if(maxScore != 0)
+        {
+            command = Character.toString(bestWord.getFirstColumn()+'A') + Integer.toString(bestWord.getFirstRow()+1);
+            command += bestWord.isHorizontal() ? " A ":" D ";
+            command += bestWord.toString(); //creates command for the best word
+            command += blanks;
+        }
+        return command;
+    }
+
     public boolean hasPeripherals(Square square, int row, int col)
     {
         // add check to see if peripheral connection to square possible
@@ -116,30 +156,49 @@ public class Bot1 implements BotAPI {
     public ArrayList<String> getCombinations(String s)
     {
         ArrayList<String> allCombinations = new ArrayList<String>();
-        combo("", s, allCombinations);
+        permute(s, 0, s.length()-1, allCombinations);
+        addShortened(allCombinations);
         return allCombinations;
     }
 
-    static void combo(String prefix, String s, ArrayList<String> allCombinations)
+    private static void permute(String str, int l, int r, ArrayList<String> al)
     {
-        int N = s.length();
-
-        permute("", s, allCombinations);
-
-        for (int i = 0 ; i < N ; i++) {
-            combo(prefix + s.charAt(i), s.substring(i + 1), allCombinations);
+        if (l == r)
+            al.add(str);
+        else
+        {
+            for (int i = l; i <= r; i++)
+            {
+                str = swap(str,l,i);
+                permute(str, l+1, r, al);
+                str = swap(str,l,i);
+            }
         }
     }
 
-    static void permute(String prefix, String s, ArrayList<String> allCombinations) {
-        int N = s.length();
+    public static String swap(String a, int i, int j)
+    {
+        char temp;
+        char[] charArray = a.toCharArray();
+        temp = charArray[i] ;
+        charArray[i] = charArray[j];
+        charArray[j] = temp;
+        return String.valueOf(charArray);
+    }
 
-        if (N == 0 && prefix.length() > 1)
-            allCombinations.add(prefix);
-
-        for (int i = 0; i < N; i++) {
-            permute(prefix + s.charAt(i), s.substring(0, i) + s.substring(i + 1, N), allCombinations);
-            combo(prefix + s.charAt(i), s.substring(0, i) + s.substring(i+1, N), allCombinations);
+    public static void addShortened(ArrayList<String> al){
+        int size = al.size();
+        HashSet<String> h = new HashSet<>();
+        for(int i=0; i<size; i++)
+        {
+            for(int j=al.get(0).length(); j>2; j--)
+            {
+                h.add(al.get(i).substring(0, j - 1));
+            }
+        }
+        for(String s : h)
+        {
+            al.add(s);
         }
     }
 
@@ -182,21 +241,144 @@ public class Bot1 implements BotAPI {
         }
     }
 
+
+    public boolean isHook(int r, int c){
+        Square s = board.getSquareCopy(r,c);
+        boolean isHook=false;
+        if(s.isOccupied())
+        {
+            //check if surrounded
+            if(r>=1){
+                   if(!board.getSquareCopy(r-1,c).isOccupied())
+                   {
+                       isHook=true;
+                   }
+            }
+            if(c>=1){
+                if(!board.getSquareCopy(r,c-1).isOccupied())
+                {
+                    isHook=true;
+                }
+            }
+            if(r<=13){
+                if(!board.getSquareCopy(r+1,c).isOccupied())
+                {
+                    isHook=true;
+                }
+            }
+            if(c<=13){
+                if(!board.getSquareCopy(r,c+1).isOccupied())
+                {
+                    isHook=true;
+                }
+            }
+        }
+        else{
+            //check if has next door tile
+            if(r>=1){
+                if(board.getSquareCopy(r-1,c).isOccupied())
+                {
+                    isHook=true;
+                }
+            }
+            if(c>=1){
+                if(board.getSquareCopy(r,c-1).isOccupied())
+                {
+                    isHook=true;
+                }
+            }
+            if(r<=13){
+                if(board.getSquareCopy(r+1,c).isOccupied())
+                {
+                    isHook=true;
+                }
+            }
+            if(c<=13){
+                if(board.getSquareCopy(r,c+1).isOccupied())
+                {
+                    isHook=true;
+                }
+            }
+        }
+        return isHook;
+    }
+
+    public void generateGaddags(int r, int c, HashSet<GADDAG> al){
+        GADDAG acrossMaster = new GADDAG(board, r, c, true);
+        GADDAG downMaster = new GADDAG(board, r, c, false);
+
+        //across gaddags
+        int numEmptyPrefix = acrossMaster.prefix.length() - acrossMaster.prefix.replace("?","").length();
+        int numEmptySuffix = acrossMaster.suffix.length() - acrossMaster.suffix.replace("?","").length();
+        //generate just suffix'
+        for(int i = numEmptySuffix; i>0; i--)
+        {
+            String pre="", suf="";
+            int j=0;
+            while(suf.length()-suf.replace("?", "").length()<numEmptySuffix)
+            {
+                suf+=acrossMaster.suffix.charAt(j);
+            }
+            if(!(suf.length()==1))
+            {
+                al.add(new GADDAG(pre, suf, acrossMaster.start.row, acrossMaster.start.col, true));
+            }
+        }
+        //generate just prefix
+        for(int i = numEmptyPrefix; i>0; i--)
+        {
+            String pre="", suf=board.getSquareCopy(acrossMaster.start.row, acrossMaster.start.col).isOccupied() ? ""+ board.getSquareCopy(acrossMaster.start.row, acrossMaster.start.col).getTile().getLetter() : "?";
+            int j=0;
+            while(pre.length()-pre.replace("?", "").length()<numEmptyPrefix)
+            {
+                pre+=acrossMaster.prefix.charAt(acrossMaster.prefix.length()-1-j);
+            }
+            al.add(new GADDAG(pre, suf, acrossMaster.start.row, acrossMaster.start.col, true));
+        }
+        //generate a mix of both
+        for(int i = numEmptySuffix; i>=0; i--)
+        {
+            String pre="", suf="";
+            int k=0;
+            while(suf.length()-suf.replace("?", "").length()<i)
+            {
+                suf+=acrossMaster.suffix.charAt(k);
+                k++;
+            }
+            for (int j = i; j<numEmptyPrefix; j++)
+            {
+                int l=0;
+                while(pre.length()-pre.replace("?", "").length()<j-i)
+                {
+                    pre+=acrossMaster.prefix.charAt(acrossMaster.prefix.length()-1-l);
+                    l++;
+                }
+            }
+            al.add(new GADDAG(pre, suf, acrossMaster.start.row, acrossMaster.start.col, true));
+        }
+    }
+
     //might be an idea to write a method that determines the best thing to exchange
     //for example AEILNRST are considered to be the most useful letters
     //and q's and z's will score lots of points
 
     private class GADDAG {
-        private String prefix;
-        private String suffix;
-        GADDAG(String pre, String suf){
+        public String prefix;
+        public String suffix;
+        public IntPair start;
+        public boolean isHorizontal;
+        GADDAG(String pre, String suf, int r, int c, boolean b){
             this.prefix = reverse(pre);
             this.suffix = suf;
+            this.start = new IntPair(r,c);
+            this.isHorizontal = b;
         }
-        GADDAG(BoardAPI board, Tile start, int row, int col, boolean isHorizontal){
-            //produces a gaddag of a line starting at a tile on that line where ? represents empty squares
+        GADDAG(BoardAPI board, int row, int col, boolean isHorizontal){
+            //produces a gaddag starting at a tile on that line where ? represents empty squares - max seven ?'s in suffix or prefix
             this.prefix = "";
-            this.suffix = ""+start.getLetter();
+            this.suffix = board.getSquareCopy(row, col).isOccupied() ? ""+board.getSquareCopy(row, col).getTile().getLetter():"?";
+            this.start = new IntPair(row,col);
+            this.isHorizontal = isHorizontal;
             int ctemp=col, rtemp=row;
             if(isHorizontal){
                 while (ctemp<15) {
@@ -206,6 +388,10 @@ public class Bot1 implements BotAPI {
                     }
                     else{
                         suffix+="?";
+                        if(suffix.length()-suffix.replace("?", "").length()>me.getFrameAsString().replaceAll("[^A-Z_]", "").length())
+                        {
+                            break;
+                        }
                     }
                     ctemp++;
                 }
@@ -217,6 +403,10 @@ public class Bot1 implements BotAPI {
                     }
                     else{
                         prefix+="?";
+                        if(prefix.length()-prefix.replace("?", "").length()>me.getFrameAsString().replaceAll("[^A-Z_]", "").length())
+                        {
+                            break;
+                        }
                     }
                     ctemp--;
                 }
@@ -230,6 +420,10 @@ public class Bot1 implements BotAPI {
                     }
                     else{
                         suffix+="?";
+                        if(suffix.length()-suffix.replace("?", "").length()>7)
+                        {
+                            break;
+                        }
                     }
                     rtemp++;
                 }
@@ -241,6 +435,10 @@ public class Bot1 implements BotAPI {
                     }
                     else{
                         prefix+="?";
+                        if(prefix.length()-prefix.replace("?", "").length()>7)
+                        {
+                            break;
+                        }
                     }
                     rtemp--;
                 }
@@ -256,8 +454,17 @@ public class Bot1 implements BotAPI {
             return c;
         }
 
-        public String getWordAsString(){
+        public String toString(){
             return reverse(prefix)+suffix;
+        }
+    }
+
+    public class IntPair {
+        public int row;
+        public int col;
+        IntPair(int r, int c){
+            row = r;
+            col = c;
         }
     }
 }
