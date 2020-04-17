@@ -128,14 +128,47 @@ public class Bot1 implements BotAPI {
         HashSet<GADDAG> gaddags = new HashSet<GADDAG>();
         for(IntPair i : hooks)
         {
-            generateGaddags(i.row, i.col, gaddags); //currently only finds across
+            generateGaddags(i.row, i.col, gaddags); //finds shapes for words where ? represents empty squares
         }
+        Frame frame = new Frame();
+        ArrayList<Tile> alt = new ArrayList<>();
+        for(int i=0; i<me.getFrameAsString().replaceAll("[^A-Z_]", "").length();i++)
+        {
+            alt.add(new Tile(me.getFrameAsString().replaceAll("[^A-Z_]", "").charAt(i)));
+        }
+        frame.addTiles(alt);
         for(GADDAG g : gaddags)
         {
-            //permute with frame
-            //check is word (and check peripherals)
-            //score words (and check peripherals)
-            //check if is Best
+            int sr=g.start.row, sc=g.start.col;
+            if(g.isHorizontal) {sc-=g.prefix.length();}
+            else{sr-=g.prefix.length();}
+            HashSet<String> GADDAGcombos = new HashSet<>();
+            getGADDAGFrameCombinations(g, combinations,GADDAGcombos);
+            for(String s : GADDAGcombos)
+            {
+                Word temp = new Word(sr, sc, g.isHorizontal, s);
+                if(board.isLegalPlay(frame, temp)) {
+                    ArrayList<Word> tempwords = new ArrayList<>();
+                    tempwords.add(temp);
+                    if (dictionary.areWords(tempwords)) {
+                        tempwords.remove(temp);
+                        for (Word w : getAllWords(temp)) {
+                            tempwords.add(w);
+                        }
+                        if (dictionary.areWords(tempwords)) {
+                            int score = 0;
+                            for (Word w : getAllWords(temp)) {
+                                score += getWordPoints(w);
+                            }
+                            if (score > maxScore) {
+                                bestWord = temp;
+                                maxScore = score;
+                                blanks = "";
+                            }
+                        }
+                    }
+                }
+            }
         }
         if(maxScore != 0)
         {
@@ -147,10 +180,66 @@ public class Bot1 implements BotAPI {
         return command;
     }
 
-    public boolean hasPeripherals(Square square, int row, int col)
-    {
-        // add check to see if peripheral connection to square possible
-        return true;
+    public ArrayList<Word> getAllWords(Word mainWord) {
+        ArrayList<Word> words = new ArrayList<>();
+        words.add(mainWord);
+        int r = mainWord.getFirstRow();
+        int c = mainWord.getFirstColumn();
+        for (int i=0; i<mainWord.length(); i++) {
+            if (!board.getSquareCopy(r,c).isOccupied()) {
+                if (isAdditionalWord(r, c, mainWord.isHorizontal())) {
+                    words.add(getAdditionalWord(r, c, mainWord.isHorizontal()));
+                }
+            }
+            if (mainWord.isHorizontal()) {
+                c++;
+            } else {
+                r++;
+            }
+        }
+        return words;
+    }
+
+    private boolean isAdditionalWord(int r, int c, boolean isHorizontal) {
+        if ((isHorizontal &&
+                (r>0 && board.getSquareCopy(r-1,c).isOccupied() || (r<15-1 && board.getSquareCopy(r+1,c).isOccupied()))) ||
+                (!isHorizontal) &&
+                        (c>0 && board.getSquareCopy(r,c-1).isOccupied()|| (c<15-1 && board.getSquareCopy(r,c+1).isOccupied())) ) {
+            return true;
+        }
+        return false;
+    }
+
+    private Word getAdditionalWord(int mainWordRow, int mainWordCol, boolean mainWordIsHorizontal) {
+        int firstRow = mainWordRow;
+        int firstCol = mainWordCol;
+        // search up or left for the first letter
+        while (firstRow >= 0 && firstCol >= 0 && board.getSquareCopy(firstRow,firstCol).isOccupied()) {
+            if (mainWordIsHorizontal) {
+                firstRow--;
+            } else {
+                firstCol--;
+            }
+        }
+        // went too far
+        if (mainWordIsHorizontal) {
+            firstRow++;
+        } else {
+            firstCol++;
+        }
+        // collect the letters by moving down or right
+        String letters = "";
+        int r = firstRow;
+        int c = firstCol;
+        while (r<15 && c<15 && board.getSquareCopy(r,c).isOccupied()) {
+            letters = letters + board.getSquareCopy(r,c).getTile().getLetter();
+            if (mainWordIsHorizontal) {
+                r++;
+            } else {
+                c++;
+            }
+        }
+        return new Word (firstRow, firstCol, !mainWordIsHorizontal, letters);
     }
 
     public ArrayList<String> getCombinations(String s)
@@ -191,7 +280,7 @@ public class Bot1 implements BotAPI {
         HashSet<String> h = new HashSet<>();
         for(int i=0; i<size; i++)
         {
-            for(int j=al.get(0).length(); j>2; j--)
+            for(int j=al.get(0).length(); j>1; j--)
             {
                 h.add(al.get(i).substring(0, j - 1));
             }
@@ -308,36 +397,134 @@ public class Bot1 implements BotAPI {
         GADDAG downMaster = new GADDAG(board, r, c, false);
         ArrayList<String> suffixes = new ArrayList<>();
         ArrayList<String> prefixes = new ArrayList<>();
-        String suf= board.getSquareCopy(acrossMaster.start.row,acrossMaster.start.row).isOccupied() ? ""+board.getSquareCopy(acrossMaster.start.row,acrossMaster.start.row).getTile().getLetter():"?";
-        for(int i=0; i<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&i<acrossMaster.suffix.length()-2; i=i){
-            String found = suf;
-            if(acrossMaster.suffix.charAt(i+1)=='?'){
-                if(found.length()>1){
-                    suffixes.add(found);
-                }
-                i++;
+        String suf = ""+acrossMaster.suffix.charAt(0);
+        int i=0;
+        while(suf.length()-suf.replaceAll("[?]", "").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&acrossMaster.start.col+i<14)
+        {
+            if(acrossMaster.suffix.charAt(i+1)=='?'&&suf.length()>1)
+            {
+                suffixes.add(suf);
             }
-            suf+=acrossMaster.suffix.charAt(i+1);
+            i++;
+            suf+=acrossMaster.suffix.charAt(i);
         }
-        for(int i=0; i<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&i<acrossMaster.prefix.length()-1; i=i){
-            String pre = "";
-            if(acrossMaster.prefix.charAt(acrossMaster.prefix.length()-1-i)=='?'){
+        suffixes.add(suf);
+        i=0;
+        String pre=acrossMaster.prefix.length()==0 ? "" : ""+acrossMaster.prefix.charAt(0);
+        while(pre.length()-pre.replaceAll("[?]", "").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&acrossMaster.start.col-i-1>0)
+        {
+            if(acrossMaster.prefix.charAt(i+1)=='?')
+            {
                 prefixes.add(pre);
-                i++;
             }
-            pre+=acrossMaster.prefix.charAt(acrossMaster.prefix.length()-1-i);
+            i++;
+            pre+=acrossMaster.prefix.charAt(i);
         }
+        prefixes.add(pre);
         for(String s : suffixes){
-            hs.add(new GADDAG("", s, r, c, true));
+            if(acrossMaster.prefix.length()!=0) {
+                if(acrossMaster.prefix.charAt(0)=='?') {
+                    hs.add(new GADDAG("", s, acrossMaster.start.row, acrossMaster.start.col, true));
+                }
+            }
             for(String p : prefixes)
             {
-                hs.add(new GADDAG(p, s, r, c, true));
+                if ((s+p).length()-(s+p).replaceAll("[?]","").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()) {
+                    hs.add(new GADDAG(p, s, acrossMaster.start.row, acrossMaster.start.col, true));
+                }
             }
         }
         for(String p : prefixes)
         {
-            hs.add(new GADDAG(p, suf, r, c, true));
+            hs.add(new GADDAG(p, ""+acrossMaster.suffix.charAt(0), acrossMaster.start.row, acrossMaster.start.col, true));
         }
+
+        //repeated process for down
+        suffixes = new ArrayList<>();
+        prefixes = new ArrayList<>();
+        suf = ""+downMaster.suffix.charAt(0);
+        i=0;
+        while(suf.length()-suf.replaceAll("[?]", "").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&downMaster.start.row+i<14)
+        {
+            if(downMaster.suffix.charAt(i+1)=='?'&&suf.length()>1)
+            {
+                suffixes.add(suf);
+            }
+            i++;
+            suf+=downMaster.suffix.charAt(i);
+        }
+        suffixes.add(suf);
+        i=0;
+        pre=downMaster.prefix.length()==0 ? "" : ""+downMaster.prefix.charAt(0);
+        while(pre.length()-pre.replaceAll("[?]", "").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&downMaster.start.row-i-1>0)
+        {
+            if(downMaster.prefix.charAt(i+1)=='?')
+            {
+                prefixes.add(pre);
+            }
+            i++;
+            pre+=downMaster.prefix.charAt(i);
+        }
+        prefixes.add(pre);
+        for(String s : suffixes){
+            if(downMaster.prefix.length()!=0) {
+                if(downMaster.prefix.charAt(0)=='?') {
+                    hs.add(new GADDAG("", s, downMaster.start.row, downMaster.start.col, false));
+                }
+            }
+            for(String p : prefixes)
+            {
+                if ((s+p).length()-(s+p).replaceAll("[?]","").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()) {
+                    hs.add(new GADDAG(p, s, downMaster.start.row, downMaster.start.col, false));
+                }
+            }
+        }
+        for(String p : prefixes)
+        {
+            hs.add(new GADDAG(p, ""+downMaster.suffix.charAt(0), downMaster.start.row, downMaster.start.col, false));
+        }
+    }
+
+    public void getGADDAGFrameCombinations(GADDAG g, ArrayList<String> combinations, HashSet<String> GADDAGcombos){
+        String c = g.toString();
+        for(String s : combinations)
+        {
+            if(s.length()==c.length()-c.replaceAll("[?]","").length())
+            {
+                int j=0;
+                for (int i=0;i<c.length();i++)
+                {
+                    if(c.charAt(i)=='?')
+                    {
+                        c=c.substring(0, i)+s.charAt(j)+c.substring(i+1);
+                        j++;
+                    }
+                }
+                GADDAGcombos.add(c);
+            }
+        }
+    }
+
+    private int getWordPoints(Word word) {
+        int wordValue = 0;
+        int wordMultipler = 1;
+        int r = word.getFirstRow();
+        int c = word.getFirstColumn();
+        for (int i = 0; i < word.length(); i++) {
+            int letterValue = board.getSquareCopy(r, c).isOccupied()? board.getSquareCopy(r, c).getTile().getValue() : new Tile(word.getLetters().charAt(i)).getValue();
+            if (!board.getSquareCopy(r, c).isOccupied()) {
+                wordValue = wordValue + letterValue * board.getSquareCopy(r, c).getLetterMuliplier();
+                wordMultipler = wordMultipler * board.getSquareCopy(r, c).getWordMultiplier();
+            } else {
+                wordValue = wordValue + letterValue;
+            }
+            if (word.isHorizontal()) {
+                c++;
+            } else {
+                r++;
+            }
+        }
+        return wordValue * wordMultipler;
     }
 
     //might be an idea to write a method that determines the best thing to exchange
@@ -350,7 +537,7 @@ public class Bot1 implements BotAPI {
         public IntPair start;
         public boolean isHorizontal;
         GADDAG(String pre, String suf, int r, int c, boolean b){
-            this.prefix = reverse(pre);
+            this.prefix = pre;
             this.suffix = suf;
             this.start = new IntPair(r,c);
             this.isHorizontal = b;
@@ -358,7 +545,7 @@ public class Bot1 implements BotAPI {
         GADDAG(BoardAPI board, int row, int col, boolean isHorizontal){
             //produces a gaddag starting at a tile on that line where ? represents empty squares - max seven ?'s in suffix or prefix
             this.prefix = "";
-            this.suffix = board.getSquareCopy(row, col).isOccupied() ? ""+board.getSquareCopy(row, col).getTile().getLetter():"?";
+            this.suffix = "";
             this.start = new IntPair(row,col);
             this.isHorizontal = isHorizontal;
             int ctemp=col, rtemp=row;
@@ -370,7 +557,7 @@ public class Bot1 implements BotAPI {
                     }
                     else{
                         suffix+="?";
-                        if(suffix.length()-suffix.replace("?", "").length()>me.getFrameAsString().replaceAll("[^A-Z_]", "").length())
+                        if(suffix.length()-suffix.replace("?", "").length()>=me.getFrameAsString().replaceAll("[^A-Z_]", "").length())
                         {
                             break;
                         }
@@ -385,7 +572,7 @@ public class Bot1 implements BotAPI {
                     }
                     else{
                         prefix+="?";
-                        if(prefix.length()-prefix.replace("?", "").length()>me.getFrameAsString().replaceAll("[^A-Z_]", "").length())
+                        if(prefix.length()-prefix.replace("?", "").length()>=me.getFrameAsString().replaceAll("[^A-Z_]", "").length())
                         {
                             break;
                         }
@@ -402,7 +589,7 @@ public class Bot1 implements BotAPI {
                     }
                     else{
                         suffix+="?";
-                        if(suffix.length()-suffix.replace("?", "").length()>7)
+                        if(suffix.length()-suffix.replace("?", "").length()>=me.getFrameAsString().replaceAll("[^A-Z_]", "").length())
                         {
                             break;
                         }
@@ -417,7 +604,7 @@ public class Bot1 implements BotAPI {
                     }
                     else{
                         prefix+="?";
-                        if(prefix.length()-prefix.replace("?", "").length()>7)
+                        if(prefix.length()-prefix.replace("?", "").length()>=me.getFrameAsString().replaceAll("[^A-Z_]", "").length())
                         {
                             break;
                         }
@@ -441,7 +628,7 @@ public class Bot1 implements BotAPI {
         }
     }
 
-    public class IntPair {
+    private class IntPair {
         public int row;
         public int col;
         IntPair(int r, int c){
