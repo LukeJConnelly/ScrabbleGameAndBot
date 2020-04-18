@@ -75,9 +75,7 @@ public class Scrabble {
 		numZeroScorePlays = 0;
 	}
 
-	public boolean isZeroScorePlaysOverLimit() {
-		return numZeroScorePlays >= ZERO_SCORE_PLAY_LIMIT;
-	}
+	public boolean isZeroScorePlaysOverLimit() {return numZeroScorePlays >= ZERO_SCORE_PLAY_LIMIT; }
 
 	public void adjustScores() {
 		for (Player player : players) {
