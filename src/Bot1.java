@@ -130,13 +130,6 @@ public class Bot1 implements BotAPI {
         {
             generateGaddags(i.row, i.col, gaddags); //finds shapes for words where ? represents empty squares
         }
-        Frame frame = new Frame();
-        ArrayList<Tile> alt = new ArrayList<>();
-        for(int i=0; i<me.getFrameAsString().replaceAll("[^A-Z_]", "").length();i++)
-        {
-            alt.add(new Tile(me.getFrameAsString().replaceAll("[^A-Z_]", "").charAt(i)));
-        }
-        frame.addTiles(alt);
         for(GADDAG g : gaddags)
         {
             int sr=g.start.row, sc=g.start.col;
@@ -153,7 +146,6 @@ public class Bot1 implements BotAPI {
                         if(s.length()-s.replaceAll("_","").length()==2) {
                             for (int j=0; j<26;j++) {
                                 Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) i+'A')+Character.toString((char) j+'A'));
-                                if (board.isLegalPlay(frame, temp)) {
                                     ArrayList<Word> tempwords = new ArrayList<>();
                                     tempwords.add(temp);
                                     if (dictionary.areWords(tempwords)) {
@@ -173,12 +165,10 @@ public class Bot1 implements BotAPI {
                                             }
                                         }
                                     }
-                                }
                             }
                         }
                         else{
                             Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) i+'A'));
-                            if (board.isLegalPlay(frame, temp)) {
                                 ArrayList<Word> tempwords = new ArrayList<>();
                                 tempwords.add(temp);
                                 if (dictionary.areWords(tempwords)) {
@@ -198,13 +188,11 @@ public class Bot1 implements BotAPI {
                                         }
                                     }
                                 }
-                            }
                         }
                     }
                 }
                 else {
                     Word temp = new Word(sr, sc, g.isHorizontal, s);
-                    if (board.isLegalPlay(frame, temp)) {
                         ArrayList<Word> tempwords = new ArrayList<>();
                         tempwords.add(temp);
                         if (dictionary.areWords(tempwords)) {
@@ -224,7 +212,6 @@ public class Bot1 implements BotAPI {
                                 }
                             }
                         }
-                    }
                 }
             }
         }
@@ -235,6 +222,7 @@ public class Bot1 implements BotAPI {
             command += bestWord.toString(); //creates command for the best word
             command += blanks;
         }
+        System.out.println(command);
         return command;
     }
 
@@ -604,9 +592,9 @@ public class Bot1 implements BotAPI {
     }
 
     public void getGADDAGFrameCombinations(GADDAG g, ArrayList<String> combinations, HashSet<String> GADDAGcombos){
-        String c = g.toString();
         for(String s : combinations)
         {
+            String c = g.toString();
             if(s.length()==c.length()-c.replaceAll("[?]","").length())
             {
                 int j=0;
