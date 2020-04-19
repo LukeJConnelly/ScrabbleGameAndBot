@@ -111,7 +111,7 @@ public class Bot1 implements BotAPI {
     public String makeWord(String myFrame)
     {
         myFrame = myFrame.replaceAll("[^A-Z_]", "");//turning frame into string of 7 letters
-        String command = "X "+myFrame;//preparing an exchange command if we find no words
+        String command = "pass";//preparing a pass command if we find no words
         Word bestWord = new Word(0,0,false,"neverever");//is never used, just a placeholder
         int maxScore=0;
         String blanks="";
@@ -235,6 +235,9 @@ public class Bot1 implements BotAPI {
             command += bestWord.toString(); //creates command for the best word
             command += blanks;
         }
+        //else if(pool.size>6){
+        // decide exchange(pool.size, frame)
+        // }
         System.out.println(command);
         return command;
     }
@@ -457,35 +460,8 @@ public class Bot1 implements BotAPI {
     public boolean isHook(int r, int c){
         Square s = board.getSquareCopy(r,c);
         boolean isHook=false;
-        if(s.isOccupied())
+        if(!s.isOccupied())
         {
-            //check if surrounded
-            if(r>=1){
-                if(!board.getSquareCopy(r-1,c).isOccupied())
-                {
-                    isHook=true;
-                }
-            }
-            if(c>=1){
-                if(!board.getSquareCopy(r,c-1).isOccupied())
-                {
-                    isHook=true;
-                }
-            }
-            if(r<=13){
-                if(!board.getSquareCopy(r+1,c).isOccupied())
-                {
-                    isHook=true;
-                }
-            }
-            if(c<=13){
-                if(!board.getSquareCopy(r,c+1).isOccupied())
-                {
-                    isHook=true;
-                }
-            }
-        }
-        else{
             //check if has next door tile
             if(r>=1){
                 if(board.getSquareCopy(r-1,c).isOccupied())
