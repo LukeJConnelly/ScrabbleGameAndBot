@@ -158,14 +158,12 @@ public class Bot1 implements BotAPI {
                                 if(board.isLegalPlay(frame, temp)) {
                                     if (dictionary.areWords(tempwords)) {
                                         tempwords.remove(temp);
-                                        for (Word w : getAllWordsWithBlanks(temp)) {
+                                        for (Word w : getAllWords(temp)) {
                                             tempwords.add(w);
                                         }
                                         if (dictionary.areWords(tempwords)) {
                                             int score = 0;
-                                            for (Word w : getAllWords(temp)) {
-                                                score += getWordPoints(w);
-                                            }
+                                            score = getAllPoints(tempwords, g);
                                             if (score > maxScore) {
                                                 bestWord = temp;
                                                 maxScore = score;
@@ -183,14 +181,12 @@ public class Bot1 implements BotAPI {
                             if(board.isLegalPlay(frame, temp)) {
                                 if (dictionary.areWords(tempwords)) {
                                     tempwords.remove(temp);
-                                    for (Word w : getAllWordsWithBlanks(temp)) {
+                                    for (Word w : getAllWords(temp)) {
                                         tempwords.add(w);
                                     }
                                     if (dictionary.areWords(tempwords)) {
                                         int score = 0;
-                                        for (Word w : getAllWords(temp)) {
-                                            score += getWordPoints(w);
-                                        }
+                                        score = getAllPoints(tempwords, g);
                                         if (score > maxScore) {
                                             bestWord = temp;
                                             maxScore = score;
@@ -214,9 +210,7 @@ public class Bot1 implements BotAPI {
                             }
                             if (dictionary.areWords(tempwords)) {
                                 int score = 0;
-                                for (Word w : getAllWords(temp)) {
-                                    score += getWordPoints(w);
-                                }
+                                score = getAllPoints(tempwords, g);
                                 if (score > maxScore) {
                                     bestWord = temp;
                                     maxScore = score;
@@ -242,130 +236,72 @@ public class Bot1 implements BotAPI {
         return command;
     }
 
-    public ArrayList<Word> getAllWords(Word word) {
-        ArrayList<Word> wordList = new ArrayList<Word>();   //the list of words we find that will be returned
-        for(int i=0;i<word.getLetters().length();i++) //for each letter in the word we check above and below or left and right for connecting words
-        {
-            if(word.isHorizontal()) {
-                String s=Character.toString(word.getLetter(i));
-                int j=1, newFirstRow=-1;    //new first row used for a peripheral word found
-                while(true) {   //we'll use breaks to get out of this
-                    if (!(word.getFirstRow() + j > 14 || word.getFirstRow() - j < 0)) {//ensuring we dont throw an arrayindex out of bounds exception
-                        if (board.getSquareCopy(word.getFirstRow() + j,word.getFirstColumn() + i).isOccupied() && board.getSquareCopy(word.getFirstRow() - j,word.getFirstColumn() + i).isOccupied()) {
-                            //if both above and below the letter are occupied we want to add both the char above and below to the string
-                            s = Character.toString(board.getSquareCopy(word.getFirstRow() - j,word.getFirstColumn() + i).getTile().getLetter())
-                                    + s +
-                                    Character.toString(board.getSquareCopy(word.getFirstRow() + j,word.getFirstColumn() + i).getTile().getLetter());
-                            newFirstRow=word.getFirstRow() - j; //we've found one above, so the first row must be changed
-                        }
-                        else if (board.getSquareCopy(word.getFirstRow() + j,word.getFirstColumn() + i).isOccupied()) {
-                            //if below the letter is occupied we want to addthe char below to the string
-                            s = s + Character.toString(board.getSquareCopy(word.getFirstRow() + j,word.getFirstColumn() + i).getTile().getLetter());
-                            if(newFirstRow==-1)//making sure newFirstRow is updated for words that run below the letter
-                            {newFirstRow=word.getFirstRow();}
-                        }
-                        else if (board.getSquareCopy(word.getFirstRow() - j,word.getFirstColumn() + i).isOccupied()) {
-                            //if above the letter is occupied we want to add the char above to the string
-                            s = Character.toString(board.getSquareCopy(word.getFirstRow() - j,word.getFirstColumn() + i).getTile().getLetter()) + s;
-                            newFirstRow=word.getFirstRow() - j;//update first row
-                        }
-                        else{
-                            //if we find nothing the word is over/never began
-                            break;
-                        }
-                    }
-                    else if (!(word.getFirstRow() + j > 14)) {  //the same checks but altered for if the word is on the final row
-                        if (board.getSquareCopy(word.getFirstRow() + j,word.getFirstColumn() + i).isOccupied()) {
-                            s = s + Character.toString(board.getSquareCopy(word.getFirstRow() + j,word.getFirstColumn() + i).getTile().getLetter());
-                            if(newFirstRow==-1)
-                            {newFirstRow=word.getFirstRow();}
-                        }
-                        else{
-                            break;
-                        }
-                    }
-                    else if (!(word.getFirstRow() - j < 0)) {   //same checks but altered for if the word is on the first row
-                        if (board.getSquareCopy(word.getFirstRow() - j,word.getFirstColumn() + i).isOccupied()) {
-                            if (board.getSquareCopy(word.getFirstRow() - j,word.getFirstColumn() + i).isOccupied()) {
-                                s = Character.toString(board.getSquareCopy(word.getFirstRow() - j,word.getFirstColumn() + i).getTile().getLetter()) + s;
-                                newFirstRow=word.getFirstRow() - j;
-                            }
-                        }
-                        else{
-                            break;
-                        }
-                    }
-                    else{
-                        break;
-                    }
-                    j++;
-                }
-                if(newFirstRow!=-1) //if newFirstRow has been changed - ie. letters were found above or below the letter
-                {
-                    Word foundWord = new Word(newFirstRow,word.getFirstColumn() + i, false, s);
-                    wordList.add(foundWord);    //construct a new word and add it to the list
+    public ArrayList<Word> getAllWords(Word mainWord) {
+        ArrayList<Word> words = new ArrayList<>();
+        words.add(mainWord);
+        int r = mainWord.getFirstRow();
+        int c = mainWord.getFirstColumn();
+        for (int i=0; i<mainWord.length(); i++) {
+            if (!board.getSquareCopy(r,c).isOccupied()) {
+                if (isAdditionalWord(r, c, mainWord.isHorizontal())) {
+                    words.add(getAdditionalWord(r, c, mainWord.isHorizontal(), mainWord.getDesignatedLetter(i)));
                 }
             }
-            else {      //exact same checks performed but flipped for vertical words
-                String s=Character.toString(word.getLetter(i));
-                int j=1, newFirstCol=-1;
-                while(true) {
-                    if (!(word.getFirstColumn() + j > 14 || word.getFirstColumn() - j < 0)) {
-                        if (board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() + j).isOccupied() && board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() - j).isOccupied()) {
-                            s = Character.toString(board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() - j).getTile().getLetter())
-                                    + s +
-                                    Character.toString(board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() + j).getTile().getLetter());
-                            newFirstCol=word.getFirstColumn() - j;
-                        }
-                        else if (board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() + j).isOccupied()) {
-                            s = s + Character.toString(board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() + j).getTile().getLetter());
-                            if(newFirstCol==-1)
-                            {newFirstCol=word.getFirstColumn();}
-                        }
-                        else if (board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() - j).isOccupied()) {
-                            s = Character.toString(board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() - j).getTile().getLetter()) + s;
-                            newFirstCol=word.getFirstColumn() - j;
-                        }
-                        else{
-                            break;
-                        }
-                    }
-                    else if (!(word.getFirstColumn() + j > 14)) {
-                        if (board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() + j).isOccupied()) {
-                            s = s + Character.toString(board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() + j).getTile().getLetter());
-                            if(newFirstCol==-1)
-                            {newFirstCol=word.getFirstColumn();}
-                        }
-                        else{
-                            break;
-                        }
-                    }
-                    else if (!(word.getFirstColumn() - j < 0)) {
-                        if (board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() - j).isOccupied()) {
-                            s = Character.toString(board.getSquareCopy(word.getFirstRow() + i,word.getFirstColumn() - j).getTile().getLetter()) + s;
-                            newFirstCol=word.getFirstColumn() - j;
-                        }
-                        else{
-                            break;
-                        }
-                    }
-                    else{
-                        break;
-                    }
-                    j++;
-                }
-                if(newFirstCol!=-1)
-                {
-                    Word foundWord = new Word(word.getFirstRow() + i, newFirstCol, true, s);
-                    wordList.add(foundWord);
-                }
+            if (mainWord.isHorizontal()) {
+                c++;
+            } else {
+                r++;
             }
         }
-        return wordList;    //return all the words we've found
+        return words;
     }
 
-    public ArrayList<Word> getAllWordsWithBlanks(Word word) {
-        return getAllWords(new Word(word.getFirstRow(), word.getFirstColumn(), word.isHorizontal(), word.getDesignatedLetters()));
+    private boolean isAdditionalWord(int r, int c, boolean isHorizontal) {
+        if ((isHorizontal &&
+                ((r>0 && board.getSquareCopy(r-1,c).isOccupied()) || (r< Board.BOARD_SIZE-1 && board.getSquareCopy(r+1,c).isOccupied()))) ||
+                (!isHorizontal &&
+                        ((c>0 && board.getSquareCopy(r,c-1).isOccupied()) || (c< Board.BOARD_SIZE-1 && board.getSquareCopy(r,c+1).isOccupied()))) ) {
+            return true;
+        }
+        return false;
+    }
+
+    private Word getAdditionalWord(int mainWordRow, int mainWordCol, boolean mainWordIsHorizontal, char letter) {
+        int firstRow = mainWordRow;
+        int firstCol = mainWordCol;
+        // search up or left for the first letter
+        while (firstRow >= 0 && firstCol >= 0 && (board.getSquareCopy(firstRow,firstCol).isOccupied()||(firstRow==mainWordRow&&firstCol==mainWordCol))) {
+            if (mainWordIsHorizontal) {
+                firstRow--;
+            } else {
+                firstCol--;
+            }
+        }
+        // went too far
+        if (mainWordIsHorizontal) {
+            firstRow++;
+        } else {
+            firstCol++;
+        }
+        // collect the letters by moving down or right
+        String letters = "";
+        int r = firstRow;
+        int c = firstCol;
+        while (r< Board.BOARD_SIZE && c< Board.BOARD_SIZE && (board.getSquareCopy(r,c).isOccupied()||(r==mainWordRow&&c==mainWordCol))) {
+            if(r==mainWordRow&&c==mainWordCol)
+            {
+                letters = letters + letter;
+            }
+            else{
+                letters = letters + board.getSquareCopy(r,c).getTile().getLetter();
+            }
+            if (mainWordIsHorizontal) {
+                r++;
+            } else {
+                c++;
+            }
+        }
+        return new Word (firstRow, firstCol, !mainWordIsHorizontal, letters);
     }
 
     public ArrayList<String> getCombinations(String s)
@@ -624,6 +560,17 @@ public class Bot1 implements BotAPI {
             }
         }
         return wordValue * wordMultipler;
+    }
+
+    public int getAllPoints(ArrayList<Word> words, GADDAG g) {
+        int points = 0;
+        for (Word word : words) {
+            points = points + getWordPoints(word);
+        }
+        if (g.toString().length()-g.toString().replaceAll("[?]","").length() == Frame.MAX_TILES) {
+            points = points + 50;
+        }
+        return points;
     }
 
     //might be an idea to write a method that determines the best thing to exchange
