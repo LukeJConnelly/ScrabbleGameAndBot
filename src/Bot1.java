@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Bot1 implements BotAPI {
-    //Other-Scrabbled-Eggs
+
     // The public API of Bot must not change
     // This is ONLY class that you can edit in the program
     // Rename Bot to the name of your team. Use camel case.
@@ -15,6 +15,9 @@ public class Bot1 implements BotAPI {
     private UserInterfaceAPI info;
     private DictionaryAPI dictionary;
     private int turnCount = 0;
+    private int pool = 0;
+    private boolean hasPool = false;
+    private String AllInfo="";
 
     Bot1(PlayerAPI me, OpponentAPI opponent, BoardAPI board, UserInterfaceAPI ui, DictionaryAPI dictionary) {
         this.me = me;
@@ -35,20 +38,106 @@ public class Bot1 implements BotAPI {
 //        }
         else if (board.isFirstPlay()) {
             command = makeFirstWord(me.getFrameAsString());
-        }else if(shouldChallenge()){
-            command = "Challenge";
+        }
+        else if(!hasPool)
+        {
+            if(shouldChallenge())
+            {
+                command="CHALLENGE";
+            }
+            else {
+                command = "POOL";
+                hasPool = true;
+            }
         }
         else {
+            pool=getPool();
+            System.out.println(pool);
             command = makeWord(me.getFrameAsString());
+            hasPool=false;
         }
         turnCount++;
         return command;
     }
 
+    public boolean shouldChallenge() {
+        String currInfo = info.getAllInfo().substring(AllInfo.length());
+        String[] InfoArray = currInfo.split("\n");
+        int i=InfoArray.length-1;
+        while(true) {
+            if(InfoArray[i].contains(">"))
+            {
+                if(!InfoArray[i].contains("NAME"))
+                {
+                    break;
+                }
+            }
+            i--;
+            if (i == -1) {
+                return false; //some error - dont challenge
+            }
+        }
+        if(InfoArray[i].toUpperCase().equals("> CHALLENGE") || InfoArray[i].toUpperCase().equals("> PASS") || InfoArray[i].toUpperCase().equals("> P") || InfoArray[i].toUpperCase().matches("[>][ ]EXCHANGE( )+([A-Z_]){1,7}") || InfoArray[i].toUpperCase().matches("[>][ ]X( )+([A-Z_]){1,7}"))
+        {
+            return false; // not a move
+        }
+        String[] parts = InfoArray[i].toUpperCase().substring(1).trim().split("( )+");
+        String gridText = parts[0];
+        int column = ((int) gridText.charAt(0)) - ((int) 'A');
+        String rowText = parts[0].substring(1);
+        int row = Integer.parseInt(rowText)-1;
+        String directionText = parts[1];
+        boolean isHorizontal = directionText.equals("A");
+        String letters = parts[2];
+        Word word;
+        if (parts.length == 3) {
+            word = new Word(row, column, isHorizontal, letters);
+        } else {
+            String designatedBlanks = parts[3];
+            word = new Word(row, column, isHorizontal, letters, designatedBlanks);
+        }
+        ArrayList<Word> words = new ArrayList<>();
+        for(Word w : getAllWordsChallenge(word))
+        {
+            words.add(w);
+        }
+        AllInfo=info.getAllInfo();
+        return !dictionary.areWords(words);
+    }
+
+    public int getPool()
+    {
+        String currInfo = info.getAllInfo().substring(AllInfo.length());
+        String[] InfoArray = currInfo.split("\n");
+        int i=InfoArray.length-1;
+        while(!InfoArray[i].contains("Pool has ")) {
+            i--;
+            if (i == -1) {
+                return 100; //some error - assume happens at start
+            }
+        }
+        AllInfo=info.getAllInfo();
+        return Integer.parseInt(InfoArray[i].replaceAll("\\D+",""));
+    }
+
+    public String exchange(String frame){
+        if(board.isFirstPlay())
+        {
+            return "X "+frame.replaceAll("[ZXQJ_S]","");
+        }
+        if (pool<7)
+        {
+            return "pass";
+        } if (pool<15) {        //TODO test with greater than or less than 15
+            return "X "+frame.replaceAll("[^ZXQJVWGKBFHCD]", "");
+        }
+        return "X "+frame.replaceAll("[ZXQJ_S]","");
+    }
+
     public String makeFirstWord(String myFrame)
     {
         myFrame = myFrame.replaceAll("[^A-Z_]", "");//turning frame into string of 7 letters
-        String command = "X "+myFrame;//preparing an exchange command if we find no words
+        String command = exchange(myFrame);//preparing an exchange command if we find no words
         Word bestWord = new Word(0,0,false,"neverever");//is never used, just a placeholder
         int maxScore=0;
         String blanks="";
@@ -69,13 +158,14 @@ public class Bot1 implements BotAPI {
                             if((getFirstWordPoints(wordWithBlanks)>maxScore||(getFirstWordPoints(wordWithBlanks)==maxScore&&wordWithBlanks.length()<bestWord.length()))&&i+wordWithBlanks.length()>6)
 //if word is a word, beats current best score, reaches double word we have a new best word
                             {
-                                bestWord = wordWithBlanks;
-                                maxScore = getFirstWordPoints(word);
-                                blanks=" ";
-                                for (int o=0;o<combination.length();o++)
-                                {
-                                    if(combination.charAt(o)=='_') {
-                                        blanks+=combinationWithoutBlanks.charAt(o);
+                                if(getFirstWordPoints(word)>35) {
+                                    bestWord = wordWithBlanks;
+                                    maxScore = getFirstWordPoints(word);
+                                    blanks = " ";
+                                    for (int o = 0; o < combination.length(); o++) {
+                                        if (combination.charAt(o) == '_') {
+                                            blanks += combinationWithoutBlanks.charAt(o);
+                                        }
                                     }
                                 }
                             }
@@ -91,9 +181,20 @@ public class Bot1 implements BotAPI {
                         if((getFirstWordPoints(word)>maxScore||(getFirstWordPoints(word)==maxScore&&word.length()<bestWord.length()))&&i+word.length()>6)
 //if word is a word, beats current best score, reaches double word  we have a new best word
                         {
-                            bestWord = word;
-                            maxScore = getFirstWordPoints(word);
-                            blanks="";
+                            if(word.toString().length() - word.toString().replaceAll("[ZQXJ]","").length() >0)
+                            {
+                                if(getFirstWordPoints(word)>30)
+                                {
+                                    bestWord = word;
+                                    maxScore = getFirstWordPoints(word);
+                                    blanks = "";
+                                }
+                            }
+                            else {
+                                bestWord = word;
+                                maxScore = getFirstWordPoints(word);
+                                blanks = "";
+                            }
                         }
                     }
                     found.remove(word);
@@ -102,7 +203,7 @@ public class Bot1 implements BotAPI {
         }
         if(maxScore != 0)
         {
-            command = Character.toString((char) (bestWord.getFirstColumn()+'A')) + Integer.toString(bestWord.getFirstRow()+1);
+            command = Character.toString(bestWord.getFirstColumn()+'A') + Integer.toString(bestWord.getFirstRow()+1);
             command += bestWord.isHorizontal() ? " A ":" D ";
             command += bestWord.toString(); //creates command for the best word
             command += blanks;
@@ -113,7 +214,7 @@ public class Bot1 implements BotAPI {
     public String makeWord(String myFrame)
     {
         myFrame = myFrame.replaceAll("[^A-Z_]", "");//turning frame into string of 7 letters
-        String command = "pass";//preparing a pass command if we find no words
+        String command = exchange(myFrame);//preparing a pass command if we find no words
         Word bestWord = new Word(0,0,false,"neverever");//is never used, just a placeholder
         int maxScore=0;
         String blanks="";
@@ -154,7 +255,7 @@ public class Bot1 implements BotAPI {
                     {
                         if(s.length()-s.replaceAll("_","").length()==2) {
                             for (int j=0; j<26;j++) {
-                                Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) ((char) i+'A'))+Character.toString((char) ((char) j+'A')));
+                                Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) i+'A')+Character.toString((char) j+'A'));
                                 ArrayList<Word> tempwords = new ArrayList<>();
                                 tempwords.add(temp);
                                 if(board.isLegalPlay(frame, temp)) {
@@ -166,10 +267,34 @@ public class Bot1 implements BotAPI {
                                         if (dictionary.areWords(tempwords)) {
                                             int score = 0;
                                             score = getAllPoints(tempwords, g);
-                                            if (score > maxScore) {
+                                            if (usedLetters(temp).length() - usedLetters(temp).replaceAll("[ZQXJ]","").length() >0){
+                                                if(pool>20)     //TODO experiment with these numbers
+                                                {
+                                                 if(score>maxScore&&score>60){
+                                                     bestWord = temp;
+                                                     maxScore = score;
+                                                     blanks = " "+Character.toString((char) i + 'A') + Character.toString((char) j + 'A');
+                                                 }
+                                                }
+                                                else if(score>maxScore)
+                                                {
+                                                    bestWord = temp;
+                                                    maxScore = score;
+                                                    blanks = " "+Character.toString((char) i + 'A') + Character.toString((char) j + 'A');
+                                                }
+                                            }
+                                            else if(pool>20)
+                                            {
+                                                if(score>maxScore&&score>50){
+                                                    bestWord = temp;
+                                                    maxScore = score;
+                                                    blanks = " "+Character.toString((char) i + 'A') + Character.toString((char) j + 'A');
+                                                }
+                                            }
+                                            else if (score > maxScore) {
                                                 bestWord = temp;
                                                 maxScore = score;
-                                                blanks = " "+Character.toString((char) ((char) i + 'A')) + Character.toString((char) ((char) j + 'A'));
+                                                blanks = " "+Character.toString((char) i + 'A') + Character.toString((char) j + 'A');
                                             }
                                         }
                                     }
@@ -177,7 +302,7 @@ public class Bot1 implements BotAPI {
                             }
                         }
                         else{
-                            Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) ((char) i+'A')));
+                            Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) i+'A'));
                             ArrayList<Word> tempwords = new ArrayList<>();
                             tempwords.add(temp);
                             if(board.isLegalPlay(frame, temp)) {
@@ -189,10 +314,34 @@ public class Bot1 implements BotAPI {
                                     if (dictionary.areWords(tempwords)) {
                                         int score = 0;
                                         score = getAllPoints(tempwords, g);
-                                        if (score > maxScore) {
+                                        if (usedLetters(temp).length() - usedLetters(temp).replaceAll("[ZQXJ]","").length() >0){
+                                            if(pool>20) //TODO experiment with these numbers
+                                            {
+                                                if(score>maxScore&&score>50){
+                                                    bestWord = temp;
+                                                    maxScore = score;
+                                                    blanks = " "+Character.toString((char) i + 'A');
+                                                }
+                                            }
+                                            else if(score>maxScore)
+                                            {
+                                                bestWord = temp;
+                                                maxScore = score;
+                                                blanks = " "+Character.toString((char) i + 'A');
+                                            }
+                                        }
+                                        else if(pool>20)
+                                        {
+                                            if(score>maxScore&&score>40){
+                                                bestWord = temp;
+                                                maxScore = score;
+                                                blanks = " "+Character.toString((char) i + 'A');
+                                            }
+                                        }
+                                        else if (score > maxScore) {
                                             bestWord = temp;
                                             maxScore = score;
-                                            blanks = " "+Character.toString((char) ((char) i + 'A'));
+                                            blanks = " "+Character.toString((char) i + 'A');
                                         }
                                     }
                                 }
@@ -213,7 +362,23 @@ public class Bot1 implements BotAPI {
                             if (dictionary.areWords(tempwords)) {
                                 int score = 0;
                                 score = getAllPoints(tempwords, g);
-                                if (score > maxScore) {
+                                if (usedLetters(temp).length() - usedLetters(temp).replaceAll("[ZQXJ]","").length() >0){
+                                    if(pool>20) //TODO experiment with these numbers
+                                    {
+                                        if(score>maxScore&&score>25){
+                                            bestWord = temp;
+                                            maxScore = score;
+                                            blanks = "";
+                                        }
+                                    }
+                                    else if(score>maxScore)
+                                    {
+                                        bestWord = temp;
+                                        maxScore = score;
+                                        blanks = "";
+                                    }
+                                }
+                                else if (score > maxScore) {
                                     bestWord = temp;
                                     maxScore = score;
                                     blanks = "";
@@ -224,18 +389,31 @@ public class Bot1 implements BotAPI {
                 }
             }
         }
-        if(maxScore != 0)
+        if((maxScore != 0&&pool<1)||maxScore>5)//TODO check what size pool and min score works best here
         {
-            command = Character.toString((char) (bestWord.getFirstColumn()+'A')) + Integer.toString(bestWord.getFirstRow()+1);
+            command = Character.toString(bestWord.getFirstColumn()+'A') + Integer.toString(bestWord.getFirstRow()+1);
             command += bestWord.isHorizontal() ? " A ":" D ";
             command += bestWord.toString(); //creates command for the best word
             command += blanks;
         }
-        //else if(pool.size>6){
-        // decide exchange(pool.size, frame)
-        // }
         System.out.println(command);
         return command;
+    }
+    public String usedLetters(Word word){
+        String s="";
+        for (int i=0; i<word.toString().length(); i++){
+            if(word.isHorizontal()){
+                if(!board.getSquareCopy(word.getFirstRow(), word.getFirstColumn()+i).isOccupied()){
+                    s+=Character.toString(word.getLetter(i));
+                }
+            }
+            else{
+                if(!board.getSquareCopy(word.getFirstRow()+i, word.getFirstColumn()).isOccupied()){
+                    s+=Character.toString(word.getLetter(i));
+                }
+            }
+        }
+        return s;
     }
 
     public ArrayList<Word> getAllWords(Word mainWord) {
@@ -297,6 +475,58 @@ public class Bot1 implements BotAPI {
             else{
                 letters = letters + board.getSquareCopy(r,c).getTile().getLetter();
             }
+            if (mainWordIsHorizontal) {
+                r++;
+            } else {
+                c++;
+            }
+        }
+        return new Word (firstRow, firstCol, !mainWordIsHorizontal, letters);
+    }
+
+    public ArrayList<Word> getAllWordsChallenge(Word mainWord) {
+        ArrayList<Word> words = new ArrayList<>();
+        words.add(mainWord);
+        int r = mainWord.getFirstRow();
+        int c = mainWord.getFirstColumn();
+        for (int i=0; i<mainWord.length(); i++) {
+            if (board.getSquareCopy(r,c).isOccupied()) {
+                if (isAdditionalWord(r, c, mainWord.isHorizontal())) {
+                    words.add(getAdditionalWordChallenge(r, c, mainWord.isHorizontal()));
+                }
+            }
+            if (mainWord.isHorizontal()) {
+                c++;
+            } else {
+                r++;
+            }
+        }
+        return words;
+    }
+
+    private Word getAdditionalWordChallenge(int mainWordRow, int mainWordCol, boolean mainWordIsHorizontal) {
+        int firstRow = mainWordRow;
+        int firstCol = mainWordCol;
+        // search up or left for the first letter
+        while (firstRow >= 0 && firstCol >= 0 && board.getSquareCopy(firstRow,firstCol).isOccupied()) {
+            if (mainWordIsHorizontal) {
+                firstRow--;
+            } else {
+                firstCol--;
+            }
+        }
+        // went too far
+        if (mainWordIsHorizontal) {
+            firstRow++;
+        } else {
+            firstCol++;
+        }
+        // collect the letters by moving down or right
+        String letters = "";
+        int r = firstRow;
+        int c = firstCol;
+        while (r< Board.BOARD_SIZE && c< Board.BOARD_SIZE && board.getSquareCopy(r,c).isOccupied()) {
+            letters = letters + board.getSquareCopy(r, c).getTile().getLetter();
             if (mainWordIsHorizontal) {
                 r++;
             } else {
@@ -383,7 +613,7 @@ public class Bot1 implements BotAPI {
         for(int i=0;i<s.length();i++) {
             if (s.charAt(i) == '_') {
                 for (int j = 0; j < 26; j++) {
-                    s = s.substring(0, i) + Character.toString((char) ('A' + j)) + s.substring(i + 1);
+                    s = s.substring(0, i) + Character.toString('A' + j) + s.substring(i + 1);
                     if (s.substring(i + 1).contains("_")) {
                         addStringsWithoutBlanks(s, al);
                     } else {
@@ -683,87 +913,5 @@ public class Bot1 implements BotAPI {
             row = r;
             col = c;
         }
-    }
-
-
-//    private boolean shouldChallenge() {
-////        String playerMove = info.getLatestInfo();//getLatestInfo doesn't seem to return anything
-//        String playerMove = info.getAllInfo();
-//        String[] playerMoveSplit = new String[0];
-//
-//        playerMoveSplit = playerMove.split(" ");
-//
-//        Word word = new Word(row, col, isHori, word);
-//        ArrayList<Word> words = new ArrayList<>();
-//        words.add(word);
-
-//
-//        //checking the last turn was correct - if not, challenge it
-//        if (!(getDictionary().areWords(word))) {
-//            String command = "C";
-//
-//        }
-//        return dictionary.areWords(arraylist);
-//    }
-
-    // (int) ‘H’ - ‘A’
-
-    boolean shouldChallenge() {
-        //trim.getAllInfo();
-        trimInfo();//shouldn't have to pass in the variables as they're stored globally
-        System.out.println(latestInfo);//checking what has actually been returned from that function
-        if (latestInfo.contains("[0 - 9]"))
-        {//possibly change this check to latestInfo rather than get all info which we don't change inplace
-            return false;
-        }
-        String playerMove = latestInfo;
-        //assumes latestInfo returns just the last played move
-        String[] move = playerMove.split(" ");
-        String coord = move[0];
-        String [] splitCoOrd = coord.split("");
-        int coordCol = Integer.parseInt(splitCoOrd[1]);
-        boolean isHor;
-        if(move[1] == "True"){
-            isHor = true;
-        }else{
-            isHor = false;
-        }
-        Word word = new Word((int) splitCoOrd[0].toCharArray()[0] - 'A', coordCol, isHor, move[2]);
-        //need to parse this from whats returned from trimInfo
-        //H into an int and 7 into an int and A into the isHorizontal boolean
-        ArrayList<Word> words = new ArrayList<>();
-        words.add(word);
-        // get words (not usable yet)
-        // add(gotten words)
-        return dictionary.areWords(words);
-    }
-
-    public String allInfo = info.getAllInfo(); //and update it to be getAllInfo() every turn
-    public String lastAllInfo; // info from the last turn
-    //then parse from that to find the last word that was played
-    String latestInfo;
-    // public String latestInfo = allInfo - lastAllInfo;// the info of what was played in the turn immediately preceeding this one
-    //this is a string so will need to be trimmed down differently than just taking away what was there from the last turn
-
-    private void trimInfo() {
-        String move = null; //is this latest info?
-        latestInfo = allInfo;
-        lastAllInfo = allInfo.substring(lastAllInfo.length());
-        int i = -1;
-        while (i < latestInfo.length()) {
-            if (latestInfo.charAt(i) == '\n')  //.matches("^[A-O][1-9] [AD] [A-Z_]{2,}$|^[A-O]1[0-5] [AD] [A-Z_]{2,}$")) {
-                move = String.valueOf(latestInfo.charAt(i));
-        }
-        i += move.length();
-    }
-
-
-    private String getLine(int i, String latestInfo) {
-        String s = "";
-        while (latestInfo.charAt(i) != '\n') {
-            s += latestInfo.charAt(i);
-            i++;
-        }
-        return s;
     }
 }
