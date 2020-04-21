@@ -441,5 +441,3 @@ public class UserInterface implements UserInterfaceAPI {
     }
 
 }
-
-
