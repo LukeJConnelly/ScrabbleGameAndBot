@@ -3,6 +3,8 @@ import java.util.HashSet;
 
 public class Bot0 implements BotAPI {
 
+    //OTHER-SCRABBLED-EGGS Bot
+    //Made by Luke Connelly, Karen Kelly and Sean Jevens
 
     // The public API of Bot must not change
     // This is ONLY class that you can edit in the program
@@ -16,9 +18,9 @@ public class Bot0 implements BotAPI {
     private UserInterfaceAPI info;
     private DictionaryAPI dictionary;
     private int turnCount = 0;
-    private int pool = 0;
-    private boolean hasPool = false;
-    private String AllInfo="";
+    private int pool = 100;         //variable used to store the pool size
+    private boolean hasPool = false;    //used to query game for pool size
+    private String AllInfo="";      //used to store everything we know about the game state as getLatestInfo() wasnt working
 
     Bot0(PlayerAPI me, OpponentAPI opponent, BoardAPI board, UserInterfaceAPI ui, DictionaryAPI dictionary) {
         this.me = me;
@@ -32,45 +34,39 @@ public class Bot0 implements BotAPI {
         // Add your code here to input your commands
         String command = "";
         if (turnCount==0) {
-            command = "NAME Scrabbled";
+            command = "NAME Bot0";
         }
-//        else if (!me.getFrameAsString().contains("_")&&!board.isFirstPlay()) {
-//            command = "X "+ me.getFrameAsString().replaceAll("[^A-Z_]", "");
-//        }
         else if (board.isFirstPlay()) {
             command = makeFirstWord(me.getFrameAsString());
         }
-        else if(!hasPool)
+        else if(!hasPool)       //ie. opponent has just moved
         {
-            if(shouldChallenge())
+            if(shouldChallenge())       //returns a boolean true if a word the opponent placed was incorrect
             {
                 command="CHALLENGE";
             }
             else {
                 command = "POOL";
-                hasPool = true;
+                hasPool = true;     // we know now the pool size so we should pass this loop
             }
         }
         else {
-            pool=getPool();
-            System.out.println(pool);
+            pool=getPool();     //update pool size
             command = makeWord(me.getFrameAsString());
-            hasPool=false;
+            hasPool=false;  //we no longer know the pool size, will have to update next time the opponent moves
         }
-        System.out.println("scrabbled: " + me.getScore());
-        System.out.println("Bot0: " + opponent.getScore());
         turnCount++;
         return command;
     }
 
     public boolean shouldChallenge() {
-        String currInfo = info.getAllInfo().substring(AllInfo.length());
-        String[] InfoArray = currInfo.split("\n");
-        int i=InfoArray.length-1;
+        String currInfo = info.getAllInfo().substring(AllInfo.length());    //shortening to just the newest info
+        String[] InfoArray = currInfo.split("\n");  //splitting by line
+        int i=InfoArray.length-1;   //start at the latest info and work back to find commands
         while(true) {
             if(InfoArray[i].contains(">"))
             {
-                if(!InfoArray[i].contains("NAME"))
+                if(!InfoArray[i].contains("NAME"))      //to stop us breaking at the first word after we set our name
                 {
                     break;
                 }
@@ -84,7 +80,7 @@ public class Bot0 implements BotAPI {
         {
             return false; // not a move
         }
-        String[] parts = InfoArray[i].toUpperCase().substring(1).trim().split("( )+");
+        String[] parts = InfoArray[i].toUpperCase().substring(1).trim().split("( )+");  //split the move into its parts
         String gridText = parts[0];
         int column = ((int) gridText.charAt(0)) - ((int) 'A');
         String rowText = parts[0].substring(1);
@@ -92,7 +88,7 @@ public class Bot0 implements BotAPI {
         String directionText = parts[1];
         boolean isHorizontal = directionText.equals("A");
         String letters = parts[2];
-        Word word;
+        Word word;  //now create the word using the parsed parts
         if (parts.length == 3) {
             word = new Word(row, column, isHorizontal, letters);
         } else {
@@ -100,11 +96,11 @@ public class Bot0 implements BotAPI {
             word = new Word(row, column, isHorizontal, letters, designatedBlanks);
         }
         ArrayList<Word> words = new ArrayList<>();
-        for(Word w : getAllWordsChallenge(word))
+        for(Word w : getAllWordsChallenge(word))        //uses a slightly different method as tiles are on the board
         {
             words.add(w);
         }
-        AllInfo=info.getAllInfo();
+        AllInfo=info.getAllInfo();      //update our info
         return !dictionary.areWords(words);
     }
 
@@ -113,29 +109,30 @@ public class Bot0 implements BotAPI {
         String currInfo = info.getAllInfo().substring(AllInfo.length());
         String[] InfoArray = currInfo.split("\n");
         int i=InfoArray.length-1;
-        while(!InfoArray[i].contains("Pool has ")) {
+        while(!InfoArray[i].contains("Pool has ")) {        //work backwards to find line with pool size
             i--;
             if (i == -1) {
                 return 100; //some error - assume happens at start
             }
         }
-        AllInfo=info.getAllInfo();
-        return Integer.parseInt(InfoArray[i].replaceAll("\\D+",""));
+        AllInfo=info.getAllInfo();  //update info
+        return Integer.parseInt(InfoArray[i].replaceAll("\\D+",""));    //return parsed size
     }
 
     public String exchange(String frame){
         if(board.isFirstPlay())
         {
-            return "X "+frame.replaceAll("[ZXQJ_S]","");
+            return "X "+frame.replaceAll("[ZXQJ_S]","");    //keep any valuable tiles
         }
-        if (pool<7)
+        if (pool<7)     //not enough tiles to exchange
         {
             return "pass";
-        } if (pool<30) {        //TODO test with greater than or less than 15
-            System.out.println("EXCHANGE");
-            return "X "+frame.replaceAll("[^ZXQJVWGKBFHCD]", "");
+        } if (pool<15) {        //TODO test with greater than or less than 15
+            return "X "+frame.replaceAll("[^ZXQJVWGKBFHCD]", "");//start to get rid of high value tiles
+        }if (pool<30) {        //TODO test with greater than or less than 15
+            return "X "+frame.replaceAll("[^JVWGKBFHCD]", "");//start to get rid of difficult to use tiles
         }
-        return "X "+frame.replaceAll("[ZXQJ_S]","");
+        return "X "+frame.replaceAll("[ZXQJ_S]","");//keep best tiles
     }
 
     public String makeFirstWord(String myFrame)
@@ -223,17 +220,17 @@ public class Bot0 implements BotAPI {
         int maxScore=0;
         String blanks="";
         ArrayList<String> combinations = getCombinations(myFrame);    //find every combination of the letters
-        HashSet<Bot0.IntPair> hooks = new HashSet<Bot0.IntPair> ();
+        HashSet<IntPair> hooks = new HashSet<IntPair> ();
         for (int r=0; r<15; r++)  {
             for (int c=0; c<15; c++)   {
                 if (isHook(r, c))
                 {
-                    hooks.add(new Bot0.IntPair(r,c));
+                    hooks.add(new IntPair(r,c));       //square where we can place to
                 }
             }
         }
-        HashSet<Bot0.GADDAG> gaddags = new HashSet<Bot0.GADDAG>();
-        for(Bot0.IntPair i : hooks)
+        HashSet<GADDAG> gaddags = new HashSet<GADDAG>();
+        for(IntPair i : hooks)
         {
             generateGaddags(i.row, i.col, gaddags); //finds shapes for words where ? represents empty squares
         }
@@ -243,12 +240,17 @@ public class Bot0 implements BotAPI {
         {
             alt.add(new Tile(me.getFrameAsString().replaceAll("[^A-Z_]", "").charAt(i)));
         }
-        frame.addTiles(alt);
-        for(Bot0.GADDAG g : gaddags)
+        frame.addTiles(alt);        //so we can use is legal
+        for(GADDAG g : gaddags)     //for each move shape
         {
-            int sr=g.start.row, sc=g.start.col;
-            if(g.isHorizontal) {sc-=g.prefix.length();}
-            else{sr-=g.prefix.length();}
+            int sr=g.start.row, sc=g.start.col;//finding the start of the word using the GADDAG
+            if(g.isHorizontal)
+            {
+                sc-=g.prefix.length();
+            }
+            else {
+                sr-=g.prefix.length();
+            }
             HashSet<String> GADDAGcombos = new HashSet<>();
             getGADDAGFrameCombinations(g, combinations,GADDAGcombos);
             for(String s : GADDAGcombos)
@@ -257,13 +259,13 @@ public class Bot0 implements BotAPI {
                 {
                     for(int i=0; i<26; i++)
                     {
-                        if(s.length()-s.replaceAll("_","").length()==2) {
+                        if(s.length()-s.replaceAll("_","").length()==2) {//process for two blanks (very unlikely)
                             for (int j=0; j<26;j++) {
                                 Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) ((char) i+'A'))+Character.toString((char) ((char) j+'A')));
                                 ArrayList<Word> tempwords = new ArrayList<>();
                                 tempwords.add(temp);
-                                if(board.isLegalPlay(frame, temp)) {
-                                    if (dictionary.areWords(tempwords)) {
+                                if(board.isLegalPlay(frame, temp)) {    //checking isLegal - sometimes we get a bad GADDAG and just making sure none throw isLegal() errors for the board
+                                    if (dictionary.areWords(tempwords)) {   //check main word is legal
                                         tempwords.remove(temp);
                                         for (Word w : getAllWords(temp)) {
                                             tempwords.add(w);
@@ -271,7 +273,7 @@ public class Bot0 implements BotAPI {
                                         if (dictionary.areWords(tempwords)) {
                                             int score = 0;
                                             score = getAllPoints(tempwords, g);
-                                            if (usedLetters(temp).length() - usedLetters(temp).replaceAll("[ZQX]","").length() >0){
+                                            if (usedLetters(temp).length() - usedLetters(temp).replaceAll("[ZQX]","").length() >0){     //here we have strategy for if it uses high value letters
                                                 if(pool>20)     //TODO experiment with these numbers
                                                 {
                                                     if(score>maxScore&&score>60){
@@ -287,7 +289,7 @@ public class Bot0 implements BotAPI {
                                                     blanks = " "+Character.toString((char) ((char) i + 'A')) + Character.toString((char) ((char) j + 'A'));
                                                 }
                                             }
-                                            else if(pool>20)
+                                            else if(pool>20)        //if we're under 80% of the way in we want to try and save blanks
                                             {
                                                 if(score>maxScore&&score>50){
                                                     bestWord = temp;
@@ -295,7 +297,7 @@ public class Bot0 implements BotAPI {
                                                     blanks = " "+Character.toString((char) ((char) i + 'A')) + Character.toString((char) ((char) j + 'A'));
                                                 }
                                             }
-                                            else if (score > maxScore) {
+                                            else if (score > maxScore) {//otherwise just use them as we can
                                                 bestWord = temp;
                                                 maxScore = score;
                                                 blanks = " "+Character.toString((char) ((char) i + 'A')) + Character.toString((char) ((char) j + 'A'));
@@ -305,7 +307,7 @@ public class Bot0 implements BotAPI {
                                 }
                             }
                         }
-                        else{
+                        else{   //one blank strategy, basically the same but with lower minimum point thresholds
                             Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) ((char) i+'A')));
                             ArrayList<Word> tempwords = new ArrayList<>();
                             tempwords.add(temp);
@@ -353,7 +355,7 @@ public class Bot0 implements BotAPI {
                         }
                     }
                 }
-                else {
+                else {  //word with no blanks
                     Word temp = new Word(sr, sc, g.isHorizontal, s);
                     ArrayList<Word> tempwords = new ArrayList<>();
                     tempwords.add(temp);
@@ -368,7 +370,7 @@ public class Bot0 implements BotAPI {
                                 score = getAllPoints(tempwords, g);
                                 if (usedLetters(temp).length() - usedLetters(temp).replaceAll("[ZQX]","").length() >0){
                                     if(pool>20) //TODO experiment with these numbers
-                                    {
+                                    {//if its using a high value tile we want to try and ensure a minimum score for the first 80% of the game - strategy
                                         if(score>maxScore&&score>25){
                                             bestWord = temp;
                                             maxScore = score;
@@ -394,23 +396,23 @@ public class Bot0 implements BotAPI {
             }
         }
         if((maxScore != 0&&pool<1)||maxScore>5)//TODO check what size pool and min score works best here
-        {
+        {//minimum score of 5 while we arent trying to finish the game
             command = "    "+Character.toString((char) (bestWord.getFirstColumn()+'A')) + Integer.toString(bestWord.getFirstRow()+1)+"   ";
             command += bestWord.isHorizontal() ? " A ":" D ";
             command += "   "+bestWord.toString(); //creates command for the best word
-            command += blanks;  //the spaces break other peoples code (hopefully)
+            command += blanks;  //the spaces break other peoples code (dirty trick for the competition)
         }
         System.out.println(command);
         return command;
     }
 
 
-
+    //method that returns any characters used by us in a word ie. any not current on the board that are in word
     public String usedLetters(Word word){
         String s="";
         for (int i=0; i<word.toString().length(); i++){
             if(word.isHorizontal()){
-                if(!board.getSquareCopy(word.getFirstRow(), word.getFirstColumn()+i).isOccupied()){
+                if(!board.getSquareCopy(word.getFirstRow(), word.getFirstColumn()+i).isOccupied()){ //if its not occupied we are placing it
                     s+=Character.toString(word.getLetter(i));
                 }
             }
@@ -423,7 +425,7 @@ public class Bot0 implements BotAPI {
         return s;
     }
 
-    public ArrayList<Word> getAllWords(Word mainWord) {
+    public ArrayList<Word> getAllWords(Word mainWord) {     //altered version of chris code
         ArrayList<Word> words = new ArrayList<>();
         words.add(mainWord);
         int r = mainWord.getFirstRow();
@@ -443,7 +445,7 @@ public class Bot0 implements BotAPI {
         return words;
     }
 
-    private boolean isAdditionalWord(int r, int c, boolean isHorizontal) {
+    private boolean isAdditionalWord(int r, int c, boolean isHorizontal) {//altered version of chris code
         if ((isHorizontal &&
                 ((r>0 && board.getSquareCopy(r-1,c).isOccupied()) || (r< Board.BOARD_SIZE-1 && board.getSquareCopy(r+1,c).isOccupied()))) ||
                 (!isHorizontal &&
@@ -453,7 +455,7 @@ public class Bot0 implements BotAPI {
         return false;
     }
 
-    private Word getAdditionalWord(int mainWordRow, int mainWordCol, boolean mainWordIsHorizontal, char letter) {
+    private Word getAdditionalWord(int mainWordRow, int mainWordCol, boolean mainWordIsHorizontal, char letter) {//altered version of chris code
         int firstRow = mainWordRow;
         int firstCol = mainWordCol;
         // search up or left for the first letter
@@ -491,7 +493,7 @@ public class Bot0 implements BotAPI {
         return new Word (firstRow, firstCol, !mainWordIsHorizontal, letters);
     }
 
-    public ArrayList<Word> getAllWordsChallenge(Word mainWord) {
+    public ArrayList<Word> getAllWordsChallenge(Word mainWord) {//version of chris code altered for challenging
         ArrayList<Word> words = new ArrayList<>();
         words.add(mainWord);
         int r = mainWord.getFirstRow();
@@ -511,7 +513,7 @@ public class Bot0 implements BotAPI {
         return words;
     }
 
-    private Word getAdditionalWordChallenge(int mainWordRow, int mainWordCol, boolean mainWordIsHorizontal) {
+    private Word getAdditionalWordChallenge(int mainWordRow, int mainWordCol, boolean mainWordIsHorizontal) {//version of chris code altered for challenging
         int firstRow = mainWordRow;
         int firstCol = mainWordCol;
         // search up or left for the first letter
@@ -543,7 +545,7 @@ public class Bot0 implements BotAPI {
         return new Word (firstRow, firstCol, !mainWordIsHorizontal, letters);
     }
 
-    public ArrayList<String> getCombinations(String s)
+    public ArrayList<String> getCombinations(String s)  //returns all combinations of a string - used for the fram
     {
         ArrayList<String> allCombinations = new ArrayList<String>();
         permute(s, 0, s.length()-1, allCombinations);
@@ -551,7 +553,7 @@ public class Bot0 implements BotAPI {
         return allCombinations;
     }
 
-    private static void permute(String str, int l, int r, ArrayList<String> al)
+    private static void permute(String str, int l, int r, ArrayList<String> al)//finds permutations of length str
     {
         if (l == r)
             al.add(str);
@@ -566,7 +568,7 @@ public class Bot0 implements BotAPI {
         }
     }
 
-    public static String swap(String a, int i, int j)
+    public static String swap(String a, int i, int j)   //swaps two chars in a string
     {
         char temp;
         char[] charArray = a.toCharArray();
@@ -576,7 +578,7 @@ public class Bot0 implements BotAPI {
         return String.valueOf(charArray);
     }
 
-    public static void addShortened(ArrayList<String> al){
+    public static void addShortened(ArrayList<String> al){  //adds shortened versions of all permutations thereby including all permutations of shorter lengths
         int size = al.size();
         HashSet<String> h = new HashSet<>();
         for(int i=0; i<size; i++)
@@ -592,7 +594,7 @@ public class Bot0 implements BotAPI {
         }
     }
 
-    private int getFirstWordPoints(Word word) {
+    private int getFirstWordPoints(Word word) {     //gets points specifically for the first word
         int wordValue = 0;
         int wordMultipler = 1;
         int r = word.getFirstRow();
@@ -615,7 +617,7 @@ public class Bot0 implements BotAPI {
         return wordValue * wordMultipler;
     }
 
-    private void addStringsWithoutBlanks(String s, ArrayList<String> al)
+    private void addStringsWithoutBlanks(String s, ArrayList<String> al)    //adds all possibilities of blank(s) in a string to an arrayList
     {
         for(int i=0;i<s.length();i++) {
             if (s.charAt(i) == '_') {
@@ -632,7 +634,7 @@ public class Bot0 implements BotAPI {
     }
 
 
-    public boolean isHook(int r, int c){
+    public boolean isHook(int r, int c){        //finds if a square can be used to place a word on
         Square s = board.getSquareCopy(r,c);
         boolean isHook=false;
         if(!s.isOccupied())
@@ -666,13 +668,14 @@ public class Bot0 implements BotAPI {
         return isHook;
     }
 
-    public void generateGaddags(int r, int c, HashSet<Bot0.GADDAG> hs){
-        Bot0.GADDAG acrossMaster = new Bot0.GADDAG(board, r, c, true);
-        Bot0.GADDAG downMaster = new Bot0.GADDAG(board, r, c, false);
+    public void generateGaddags(int r, int c, HashSet<GADDAG> hs){
+        GADDAG acrossMaster = new GADDAG(board, r, c, true);    //we start with the lines, and then reduce them to words only using the number of letters in the frame
+        GADDAG downMaster = new GADDAG(board, r, c, false);
         ArrayList<String> suffixes = new ArrayList<>();
         ArrayList<String> prefixes = new ArrayList<>();
         String suf = ""+acrossMaster.suffix.charAt(0);
         int i=0;
+        //finds all length suffixes with up to frame length empty squares
         while(suf.length()-suf.replaceAll("[?]", "").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&acrossMaster.start.col+i<14)
         {
             if(acrossMaster.suffix.charAt(i+1)=='?'&&suf.length()>1)
@@ -685,6 +688,7 @@ public class Bot0 implements BotAPI {
         suffixes.add(suf);
         i=0;
         String pre=acrossMaster.prefix.length()==0 ? "" : ""+acrossMaster.prefix.charAt(0);
+        //finds all length prefixes with up to frame length empty squares
         while(pre.length()-pre.replaceAll("[?]", "").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()&&acrossMaster.start.col-i-1>0)
         {
             if(acrossMaster.prefix.charAt(i+1)=='?')
@@ -695,22 +699,23 @@ public class Bot0 implements BotAPI {
             pre+=acrossMaster.prefix.charAt(i);
         }
         prefixes.add(pre);
+        //combines all prefixes and suffixes together
         for(String s : suffixes){
             if(acrossMaster.prefix.length()!=0) {
                 if(acrossMaster.prefix.charAt(0)=='?') {
-                    hs.add(new Bot0.GADDAG("", s, acrossMaster.start.row, acrossMaster.start.col, true));
+                    hs.add(new GADDAG("", s, acrossMaster.start.row, acrossMaster.start.col, true));
                 }
             }
             for(String p : prefixes)
             {
                 if ((s+p).length()-(s+p).replaceAll("[?]","").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()) {
-                    hs.add(new Bot0.GADDAG(p, s, acrossMaster.start.row, acrossMaster.start.col, true));
+                    hs.add(new GADDAG(p, s, acrossMaster.start.row, acrossMaster.start.col, true));
                 }
             }
         }
         for(String p : prefixes)
         {
-            hs.add(new Bot0.GADDAG(p, ""+acrossMaster.suffix.charAt(0), acrossMaster.start.row, acrossMaster.start.col, true));
+            hs.add(new GADDAG(p, ""+acrossMaster.suffix.charAt(0), acrossMaster.start.row, acrossMaster.start.col, true));
         }
 
         //repeated process for down
@@ -743,23 +748,23 @@ public class Bot0 implements BotAPI {
         for(String s : suffixes){
             if(downMaster.prefix.length()!=0) {
                 if(downMaster.prefix.charAt(0)=='?') {
-                    hs.add(new Bot0.GADDAG("", s, downMaster.start.row, downMaster.start.col, false));
+                    hs.add(new GADDAG("", s, downMaster.start.row, downMaster.start.col, false));
                 }
             }
             for(String p : prefixes)
             {
                 if ((s+p).length()-(s+p).replaceAll("[?]","").length()<me.getFrameAsString().replaceAll("[^A-Z_]","").length()) {
-                    hs.add(new Bot0.GADDAG(p, s, downMaster.start.row, downMaster.start.col, false));
+                    hs.add(new GADDAG(p, s, downMaster.start.row, downMaster.start.col, false));
                 }
             }
         }
         for(String p : prefixes)
         {
-            hs.add(new Bot0.GADDAG(p, ""+downMaster.suffix.charAt(0), downMaster.start.row, downMaster.start.col, false));
+            hs.add(new GADDAG(p, ""+downMaster.suffix.charAt(0), downMaster.start.row, downMaster.start.col, false));
         }
     }
 
-    public void getGADDAGFrameCombinations(Bot0.GADDAG g, ArrayList<String> combinations, HashSet<String> GADDAGcombos){
+    public void getGADDAGFrameCombinations(GADDAG g, ArrayList<String> combinations, HashSet<String> GADDAGcombos){//maps a frame permutation onto a gaddag
         for(String s : combinations)
         {
             String c = g.toString();
@@ -770,16 +775,16 @@ public class Bot0 implements BotAPI {
                 {
                     if(c.charAt(i)=='?')
                     {
-                        c=c.substring(0, i)+s.charAt(j)+c.substring(i+1);
+                        c=c.substring(0, i)+s.charAt(j)+c.substring(i+1);//replace ? with next char in string
                         j++;
                     }
                 }
-                GADDAGcombos.add(c);
+                GADDAGcombos.add(c);//add the mapping to the list
             }
         }
     }
 
-    private int getWordPoints(Word word) {
+    private int getWordPoints(Word word) {//based on chris' code
         int wordValue = 0;
         int wordMultipler = 1;
         int r = word.getFirstRow();
@@ -801,7 +806,7 @@ public class Bot0 implements BotAPI {
         return wordValue * wordMultipler;
     }
 
-    public int getAllPoints(ArrayList<Word> words, Bot0.GADDAG g) {
+    public int getAllPoints(ArrayList<Word> words, GADDAG g) {//based on chris code
         int points = 0;
         for (Word word : words) {
             points = points + getWordPoints(word);
@@ -819,19 +824,19 @@ public class Bot0 implements BotAPI {
     private class GADDAG {
         public String prefix;
         public String suffix;
-        public Bot0.IntPair start;
+        public IntPair start;
         public boolean isHorizontal;
-        GADDAG(String pre, String suf, int r, int c, boolean b){
+        GADDAG(String pre, String suf, int r, int c, boolean b){//almost a word definition
             this.prefix = pre;
             this.suffix = suf;
-            this.start = new Bot0.IntPair(r,c);
+            this.start = new IntPair(r,c);
             this.isHorizontal = b;
         }
         GADDAG(BoardAPI board, int row, int col, boolean isHorizontal){
             //produces a gaddag starting at a tile on that line where ? represents empty squares - max seven ?'s in suffix or prefix
             this.prefix = "";
             this.suffix = "";
-            this.start = new Bot0.IntPair(row,col);
+            this.start = new IntPair(row,col);
             this.isHorizontal = isHorizontal;
             int ctemp=col, rtemp=row;
             if(isHorizontal){
@@ -899,7 +904,7 @@ public class Bot0 implements BotAPI {
             }
         }
 
-        public String reverse(String s) {
+        public String reverse(String s) {//used to reverse a prefix because gaddags store prefixes backwards
             String c = "";
             for(int i=s.length()-1; i>=0; i--)
             {
@@ -913,7 +918,7 @@ public class Bot0 implements BotAPI {
         }
     }
 
-    private class IntPair {
+    private class IntPair {//just something we found useful for squares
         public int row;
         public int col;
         IntPair(int r, int c){

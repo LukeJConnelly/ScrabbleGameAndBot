@@ -28,7 +28,7 @@ public class Bot1 implements BotAPI {
         // Add your code here to input your commands
         String command = "";
         if (turnCount==0) {
-            command = "NAME Bot0";
+            command = "NAME Bot1";
         }
 //        else if (!me.getFrameAsString().contains("_")&&!board.isFirstPlay()) {
 //            command = "X "+ me.getFrameAsString().replaceAll("[^A-Z_]", "");
@@ -100,7 +100,7 @@ public class Bot1 implements BotAPI {
         }
         if(maxScore != 0)
         {
-            command = Character.toString((char) (bestWord.getFirstColumn()+'A')) + Integer.toString(bestWord.getFirstRow()+1);
+            command = Character.toString(bestWord.getFirstColumn()+'A') + Integer.toString(bestWord.getFirstRow()+1);
             command += bestWord.isHorizontal() ? " A ":" D ";
             command += bestWord.toString(); //creates command for the best word
             command += blanks;
@@ -152,7 +152,7 @@ public class Bot1 implements BotAPI {
                     {
                         if(s.length()-s.replaceAll("_","").length()==2) {
                             for (int j=0; j<26;j++) {
-                                Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) ((char) i+'A'))+Character.toString((char) ((char) j+'A')));
+                                Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) i+'A')+Character.toString((char) j+'A'));
                                 ArrayList<Word> tempwords = new ArrayList<>();
                                 tempwords.add(temp);
                                 if(board.isLegalPlay(frame, temp)) {
@@ -167,7 +167,7 @@ public class Bot1 implements BotAPI {
                                             if (score > maxScore) {
                                                 bestWord = temp;
                                                 maxScore = score;
-                                                blanks = " "+Character.toString((char) ((char) i + 'A')) + Character.toString((char) ((char) j + 'A'));
+                                                blanks = " "+Character.toString((char) i + 'A') + Character.toString((char) j + 'A');
                                             }
                                         }
                                     }
@@ -175,7 +175,7 @@ public class Bot1 implements BotAPI {
                             }
                         }
                         else{
-                            Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) ((char) i+'A')));
+                            Word temp = new Word(sr, sc, g.isHorizontal, s, Character.toString((char) i+'A'));
                             ArrayList<Word> tempwords = new ArrayList<>();
                             tempwords.add(temp);
                             if(board.isLegalPlay(frame, temp)) {
@@ -190,7 +190,7 @@ public class Bot1 implements BotAPI {
                                         if (score > maxScore) {
                                             bestWord = temp;
                                             maxScore = score;
-                                            blanks = " "+Character.toString((char) ((char) i + 'A'));
+                                            blanks = " "+Character.toString((char) i + 'A');
                                         }
                                     }
                                 }
@@ -224,9 +224,9 @@ public class Bot1 implements BotAPI {
         }
         if(maxScore != 0)
         {
-            command = Character.toString((char) (bestWord.getFirstColumn()+'A')) + Integer.toString(bestWord.getFirstRow()+1);
+            command = "    "+Character.toString(bestWord.getFirstColumn()+'A') + Integer.toString(bestWord.getFirstRow()+1)+"   ";
             command += bestWord.isHorizontal() ? " A ":" D ";
-            command += bestWord.toString(); //creates command for the best word
+            command += "   "+bestWord.toString(); //creates command for the best word
             command += blanks;
         }
         //else if(pool.size>6){
@@ -381,7 +381,7 @@ public class Bot1 implements BotAPI {
         for(int i=0;i<s.length();i++) {
             if (s.charAt(i) == '_') {
                 for (int j = 0; j < 26; j++) {
-                    s = s.substring(0, i) + Character.toString((char) ('A' + j)) + s.substring(i + 1);
+                    s = s.substring(0, i) + Character.toString('A' + j) + s.substring(i + 1);
                     if (s.substring(i + 1).contains("_")) {
                         addStringsWithoutBlanks(s, al);
                     } else {
